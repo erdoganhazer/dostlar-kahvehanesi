@@ -1,6 +1,6 @@
 // Arayüz kabuğu: ana menü ve Ayarlar (Oyuncular, Genel). Kullanıcı metni HER ZAMAN textContent ile yazılır.
 import { createStorage } from '../core/storage.js';
-import { GAMES } from '../games/index.js';
+import { GAMES, GROUPS } from '../games/index.js';
 import { Roster, AVATARS, MAX_BOTS } from '../players/roster.js';
 import { Settings, PACE_OPTIONS } from '../players/settings.js';
 import { cardFace, cardBack, cardJoker } from './card-art.js';
@@ -8,9 +8,9 @@ import { LEVEL_NAMES, STYLE_NAMES, SPEED_NAMES } from '../players/bot.js';
 import { SUIT_SYMBOL, rankLabel, isRed } from '../core/cards.js';
 import { createKingScreen } from './king-table.js';
 import { avatarNode, resizeImage, resizeImageTo } from './avatar.js';
-import { YANCI_MODES } from './yanci.js';
 import { initSfx, sfx } from './sfx.js';
 import { logoSvg } from './logo.js';
+import { loadDrinkFiles } from './kahvehane.js';
 import { createPistiScreen } from './pisti-table.js';
 import { createPapazScreen } from './papaz-table.js';
 import { createEsekScreen } from './esek-table.js';
@@ -32,6 +32,7 @@ const roster = new Roster(storage);
 const settings = new Settings(storage);
 initSfx(settings);
 document.title = 'Dostlar Kahvehanesi';
+loadDrinkFiles(); // assets/drinks/*.svg (kullanıcının düzenleyebildiği çizimler)
 
 // Kurulabilir uygulama: kendi adresinde (https ya da localhost) ve bir sayfanın içine gömülü değilken servis işçisi kurulur
 let installPrompt = null;
@@ -75,7 +76,7 @@ function h(tag, attrs = {}, ...kids) {
   return el;
 }
 
-/** Ayarlara göre kart arkası fotoğrafı (yoksa boş: KS amblemli arkalık) */
+/** Ayarlara göre kart arkası fotoğrafı (yoksa boş: bordo desen) */
 function backPhoto() {
   const st = settings.get('backStyle');
   if (st === 'avatar') return settings.get('humanPhoto') || '';
@@ -83,11 +84,11 @@ function backPhoto() {
   return '';
 }
 
-/** Ayarlar: kart arkası seçimi (KS amblemi / avatar fotoğrafım / yüklenen fotoğraf) ve önizleme */
+/** Ayarlar: kart arkası seçimi (bordo desen / avatar fotoğrafım / yüklenen fotoğraf) ve önizleme */
 function backSection() {
   const prev = h('span', { class: 'backprev' });
   const draw = () => prev.replaceChildren(cardEl(null));
-  const sel = h('select', {}, [['ks', 'Bordo, KS amblemli'], ['avatar', 'Avatar fotoğrafım'], ['foto', 'Yüklediğim fotoğraf']].map(([v, l]) => h('option', { value: v, selected: settings.get('backStyle') === v }, l)));
+  const sel = h('select', {}, [['ks', 'Bordo desen'], ['avatar', 'Avatar fotoğrafım'], ['foto', 'Yüklediğim fotoğraf']].map(([v, l]) => h('option', { value: v, selected: settings.get('backStyle') === v }, l)));
   const file = h('input', { type: 'file', accept: 'image/*', style: 'display:none' });
   const up = h('button', { class: 'btn small', type: 'button', onclick: () => file.click() }, 'Fotoğraf yükle');
   const sync = () => {
@@ -96,7 +97,7 @@ function backSection() {
   };
   sel.addEventListener('change', () => {
     settings.set('backStyle', sel.value);
-    if (sel.value === 'avatar' && !settings.get('humanPhoto')) alert2('Avatarın için fotoğraf yüklemediğin için KS arkalığı görünecek. Avatarın bölümünden fotoğraf yükleyebilirsin.');
+    if (sel.value === 'avatar' && !settings.get('humanPhoto')) alert2('Avatarın için fotoğraf yüklemediğin için bordo desen görünecek. Avatarın bölümünden fotoğraf yükleyebilirsin.');
     if (sel.value === 'foto' && !settings.get('backPhoto')) file.click();
     sync();
   });
@@ -167,8 +168,6 @@ function screenMenu() {
       h('span', { class: 'tp' }, ready ? `${g.players} kişi · Oyna` : `${g.players} kişi · yakında`)
     );
   };
-  const ready = GAMES.filter((g) => g.status === 'ready');
-  const soon = GAMES.filter((g) => g.status !== 'ready');
   return shell(
     '',
     [h('button', { onclick: () => go('ayarlar') }, 'Oyuncular'), h('button', { onclick: () => go('ayarlar') }, 'Ayarlar'), h('button', { onclick: () => go('hakkinda') }, 'Yardım')],
@@ -177,10 +176,10 @@ function screenMenu() {
       { class: 'felt menufelt' },
       brand(),
       h('h2', {}, `Hoş geldin, ${settings.get('humanName')}`),
-      h('div', { class: 'sec' }, 'Oynanabilir'),
-      h('div', { class: 'tiles' }, ready.map(tile)),
-      h('div', { class: 'sec' }, 'Yakında'),
-      h('div', { class: 'tiles' }, soon.map((g, k) => tile(g, k))),
+      GROUPS.flatMap(([gid, title]) => {
+        const list = GAMES.filter((g) => g.group === gid).sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+        return list.length ? [h('div', { class: 'sec' }, title), h('div', { class: 'tiles' }, list.map((g, k) => tile(g, k)))] : [];
+      }),
       h('p', { class: 'hint' }, `${roster.active().length} oyuncu hazır. Aynı oyuncular tüm oyunlarda oturur.`),
       installPrompt && !standalone()
         ? h('button', { class: 'btn installbtn', onclick: async () => {
@@ -277,7 +276,7 @@ function generalTab() {
         sel.addEventListener('change', () => settings.set('cardStyle', sel.value));
         return sel;
       })()),
-      ...[['cafe', 'Kahvehane: oyuncuların yanında çay, kahve, oralet…'], ['fourColor', 'Dört renkli deste (karo mavi, sinek yeşil)'], ['chat', 'Sohbet: botlar konuşsun, laf soksun'], ['sound', 'Ses efektleri (kâğıt, sıra, süre, mesaj)']].map(([k, l]) => {
+      ...[['cafe', 'Kahvehane: oyuncuların yanında çay, kahve, oralet…'], ['fourColor', 'Dört renkli deste (karo mavi, sinek yeşil)'], ['chat', 'Sohbet: botlar konuşsun, laf soksun'], ['sound', 'Ses efektleri (kâğıt, sıra, süre, mesaj)'], ['anger', 'Kaybeden botlar sinirlensin']].map(([k, l]) => {
         const cb = h('input', { type: 'checkbox', checked: settings.get(k) });
         cb.addEventListener('change', () => settings.set(k, cb.checked));
         return h('label', { class: 'row' }, cb, l);
@@ -324,15 +323,12 @@ function generalTab() {
 
 /** Yancı: mod, ad, resim (hazır simge ya da fotoğraf) */
 function yanciSection() {
-  const mode = h('select', {}, YANCI_MODES.map(([v, l]) => h('option', { value: v, selected: settings.get('yanciMode') === v }, l)));
-  mode.addEventListener('change', () => settings.set('yanciMode', mode.value));
   const name = h('input', { type: 'text', value: settings.get('yanciName'), maxlength: 14 });
   name.addEventListener('change', () => settings.set('yanciName', name.value));
   const picker = avatarPicker({ avatar: settings.get('yanciAvatar'), photo: settings.get('yanciPhoto') });
   return h('div', { class: 'panel stack' },
     h('b', {}, 'Yancı'),
-    h('div', { class: 'hint', style: 'color:#000' }, 'Masada sağ altında oturur. Yönerge modunda ne yapacağını söyler ve hamleni yorumlar; sohbet modunda oyunu muhabbetle takip eder. Çay ısmarlarsan ona da gelir.'),
-    h('label', { class: 'f' }, 'Mod', mode),
+    h('div', { class: 'hint', style: 'color:#000' }, 'Masada sağ altında oturur, oyunu muhabbetle takip eder. Resmine dokununca ipucu verir; altındaki 🔇 ile susar. Çay ısmarlarsan ona da gelir.'),
     h('label', { class: 'f' }, 'Adı', name),
     picker.node,
     h('button', { class: 'btn small', onclick: () => { const v = picker.get(); settings.set('yanciAvatar', v.avatar); settings.set('yanciPhoto', v.photo); rs(); } }, 'Resmi kaydet'));
@@ -343,7 +339,7 @@ function avatarPicker(init) {
   const wrap = h('div', { class: 'stack' });
   const file = h('input', { type: 'file', accept: 'image/*', hidden: true });
   function draw() {
-    const btns = AVATARS.map((a) => h('button', { type: 'button', 'aria-pressed': !st.photo && a === st.avatar, onclick: () => { st.avatar = a; st.photo = ''; draw(); } }, a));
+    const btns = AVATARS.map((a) => h('button', { type: 'button', class: 'avpick', 'aria-pressed': !st.photo && a === st.avatar, onclick: () => { st.avatar = a; st.photo = ''; draw(); } }, avatarNode('', a)));
     wrap.replaceChildren(
       h('div', { class: 'row' },
         avatarNode(st.photo, st.avatar),

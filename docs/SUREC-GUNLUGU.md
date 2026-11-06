@@ -193,3 +193,16 @@ Kural (SERVIS-MANUELI): masadaki öğeler içerik değişince yükseklik değiş
 - Denendi: yerelde servis işçisi devreye giriyor, internet kesikken menü ve Gin açılıyor.
 - 06.11.2026: Depo erdoganhazer/dostlar-kahvehanesi oluşturuldu (kullanıcı), ilk gönderim yapıldı, Pages kaynağı GitHub Actions (kullanıcı açtı). Yayın: https://erdoganhazer.github.io/dostlar-kahvehanesi/
 - Bundan sonra güncellemeler bu depoya gönderilir; claude.ai önizlemesi ikincil.
+
+## v1.7 — Kullanıcı istek listesi (06.11 akşam), 1. aşama
+- Konken: başkası kart atınca sürükleme kesiliyordu → sürükleme durumu çizimden bağımsız (pencere dinleyicileri, her çizimde kart yeniden yakalanır).
+- Çay/kahve buharı her kartta baştan başlıyordu → içecek öğeleri kalıcı, buhar Web Animations ile.
+- Deste arkasındaki "KS" yazısı kaldırıldı.
+- Yancı: adı Şerif; ayarı yalnız altındaki 🔇/🔊 (sessiz ya da sohbet). Resmine dokununca o anın ipucu (sıra sendeyse ne yapacağın, değilse gidişat). Yönerge modu kaldırıldı.
+- İçecek ısmarlama: bir oyuncunun içeceğine dokun → yalnız ona; kendi içeceğine dokun → kendine ya da herkese.
+- İçecek çizimleri düzenlenebilir dosyalar: assets/drinks/<tür>.svg (id="sivi" içecek; seviye oyunda ayarlanır). Sıfırlamak: node tools/export-drinks.mjs.
+- Emoji avatarlar kaldırıldı; 8 çizim yüz (a1–a8). Hazır oyuncu en fazla 3 (masada 4 kişi). Varsayılan oyuncu adı "Oyuncu".
+- Kaybeden botlar sinirlenir (ayar): üst üste kayıpta söylenir, kutusu kızarır, çok sinirliyse yüzü kızarır.
+- Menü grupları: Kahvehane / Kumarhane / Tek kişilik, her grup alfabetik. Yeni "yakında" kutuları: Kılıç, At Yarışı, Bakara, Türk Pokeri, Kart Barbutu, Üç Kart Poker, Casino Savaşı.
+- Kurulunca ad her yerde "Dostlar Kahvehanesi".
+- Bekleyen kararlar: 3 botun adları (fotoğraflar telif nedeniyle depoya konmayacak; kullanıcı kendi cihazında yükleyecek), Kılıç / Türk Pokeri / Kart Barbutu kuralları.

@@ -31,8 +31,59 @@ const THANKS = ['Sağ ol {t}, eksik olma', 'Eline sağlık {t}', 'Afiyet olsun b
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 
 /** İçecek SVG'si. level: 0..1, uid: tanım kimliklerinin öneki (sayfada benzersiz olmalı) */
-export function drinkSvg(type, level, uid) {
-  const L = Math.max(0, Math.min(1, level));
+// Kullanıcının düzenleyebileceği SVG dosyaları: assets/drinks/<tür>.svg. Dosya varsa çizim ondan gelir; sıvı seviyesi
+// dosyadaki id="sivi" öğesine uygulanır (data-sivi-ust / data-sivi-alt arası kırpılır; data-sivi-mod="kaydir" ise aşağı kayar).
+const FILE_SVG = {};
+export function loadDrinkFiles(base = 'assets/drinks/') {
+  if (typeof fetch === 'undefined') return Promise.resolve();
+  return Promise.all(Object.keys(DRINKS).map((k) => fetch(`${base}${k}.svg`).then((r) => (r.ok ? r.text() : null)).then((t) => {
+    if (t && t.includes('<svg')) FILE_SVG[k] = t;
+  }).catch(() => {})));
+}
+function fromFile(text, level, uid) {
+  // kimlikleri bu çizime özel yap (sayfada birden çok bardak var)
+  let t = text.replace(/<\?xml[^>]*>/, '').replace(/id="([^"]+)"/g, `id="${uid}-$1"`).replace(/url\(#([^)]+)\)/g, `url(#${uid}-$1)`).replace(/href="#([^"]+)"/g, `href="#${uid}-$1"`);
+  const doc = new DOMParser().parseFromString(t, 'image/svg+xml');
+  const svg = doc.documentElement;
+  const sivi = doc.getElementById(`${uid}-sivi`);
+  if (sivi) {
+    const ust = +svg.getAttribute('data-sivi-ust') || 0;
+    const alt = +svg.getAttribute('data-sivi-alt') || 54;
+    const ns = 'http://www.w3.org/2000/svg';
+    if (svg.getAttribute('data-sivi-mod') === 'kaydir') {
+      sivi.setAttribute('transform', `translate(0 ${((1 - level) * (alt - ust)).toFixed(2)})`);
+      if (level <= 0.05) sivi.setAttribute('opacity', '0');
+    } else {
+      const y = alt - (alt - ust) * level;
+      const cp = doc.createElementNS(ns, 'clipPath');
+      cp.setAttribute('id', `${uid}-lv`);
+      const r = doc.createElementNS(ns, 'rect');
+      r.setAttribute('x', '-50');
+      r.setAttribute('y', y.toFixed(2));
+      r.setAttribute('width', '200');
+      r.setAttribute('height', '200');
+      cp.append(r);
+      svg.insertBefore(cp, svg.firstChild);
+      const g = doc.createElementNS(ns, 'g');
+      g.setAttribute('clip-path', `url(#${uid}-lv)`);
+      sivi.replaceWith(g);
+      g.append(sivi);
+    }
+  }
+  svg.setAttribute('aria-hidden', 'true');
+  svg.removeAttribute('width');
+  svg.removeAttribute('height');
+  return new XMLSerializer().serializeToString(svg);
+}
+
+export function drinkSvg(type, level, uid, { file = false } = {}) {
+  if (!file && FILE_SVG[type]) {
+    try {
+      return fromFile(FILE_SVG[type], Math.max(0, Math.min(1, level)), uid);
+    } catch {}
+  }
+  const L = file ? 1 : Math.max(0, Math.min(1, level));
+  let sv = null; // dosya için sıvı aralığı
   // ince belli çay bardağı (tulip): ağız geniş, bel ince, dip hafif şişkin
   const tulip = 'M8.5 7C9.5 15 15 19.5 14.6 26.5C14.2 31.5 11 35.5 11.8 41C12.4 45.2 14.4 47.3 16 47.6H24C25.6 47.3 27.6 45.2 28.2 41C29 35.5 25.8 31.5 25.4 26.5C25 19.5 30.5 15 31.5 7Z';
   const straight = 'M10 8L13 47H27L30 8Z';
@@ -50,8 +101,10 @@ export function drinkSvg(type, level, uid) {
     `<ellipse cx="20" cy="${y - 0.3}" rx="8" ry="1.6" fill="#ece6da"/>`;
   const fill = (shape, top, bottom, paint) => {
     const y = bottom - (bottom - top) * L;
-    return `<clipPath id="${uid}"><path d="${shape}"/></clipPath><rect x="0" y="${y.toFixed(1)}" width="40" height="${(bottom - y + 2).toFixed(1)}" fill="${paint}" clip-path="url(#${uid})"/>` +
+    sv = { ust: top, alt: bottom };
+    const inner = `<rect x="0" y="${y.toFixed(1)}" width="40" height="${(bottom - y + 2).toFixed(1)}" fill="${paint}" clip-path="url(#${uid})"/>` +
       (L > 0.04 ? `<ellipse cx="20" cy="${y.toFixed(1)}" rx="${(y < 22 ? 9 : 6).toFixed(1)}" ry=".9" fill="rgba(255,255,255,.28)" clip-path="url(#${uid})"/>` : '');
+    return `<clipPath id="${uid}"><path d="${shape}"/></clipPath>${file ? `<g id="sivi">${inner}</g>` : inner}`;
   };
   let body;
   if (type === 'cay' || type === 'oralet' || type === 'raki') {
@@ -82,9 +135,14 @@ export function drinkSvg(type, level, uid) {
       '<path d="M7 26.5H31" stroke="#b02a1e" stroke-width="2.4"/><path d="M7 29H31" stroke="#c99a3c" stroke-width=".6"/><path d="M7 24.2H31" stroke="#c99a3c" stroke-width=".6"/>' +
       '<circle cx="19" cy="34.5" r="4.2" fill="#b02a1e" stroke="#c99a3c" stroke-width=".7"/><circle cx="19" cy="34.5" r="2.2" fill="#fbfaf6"/><circle cx="19" cy="34.5" r="1" fill="#b02a1e"/>' +
       '<path d="M9.5 35C10.5 38.5 12.5 40.5 15 41.6M28.5 35C27.5 38.5 25.5 40.5 23 41.6" stroke="#2e7d4f" stroke-width=".8" fill="none"/>' +
-      (L > 0.05 ? foam : '<ellipse cx="19" cy="38" rx="6" ry="1.5" fill="#3b2414" opacity=".7"/>') +
+      (file ? `<g id="sivi">${foam}</g>` : L > 0.05 ? foam : '<ellipse cx="19" cy="38" rx="6" ry="1.5" fill="#3b2414" opacity=".7"/>') +
       '<ellipse cx="19" cy="21" rx="12.5" ry="2.2" fill="none" stroke="#c99a3c" stroke-width="1.1"/>' +
       '<path d="M9.5 27C10.3 33 12.4 37.5 15.5 39.8" stroke="rgba(255,255,255,.7)" stroke-width="1" fill="none"/>';
+  }
+  if (file) {
+    if (type === 'kahve' || type === 'salep') sv = { ust: 22.2, alt: 25.7, mod: 'kaydir' };
+    const a = sv ? ` data-sivi-ust="${sv.ust}" data-sivi-alt="${sv.alt}"${sv.mod ? ` data-sivi-mod="${sv.mod}"` : ''}` : '';
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 54" width="400" height="540"${a}>\n<!-- ${DRINKS[type].name}: id="sivi" içeceğin kendisi (seviye oyunda ayarlanır). Diğer her şeyi değiştirebilirsin. -->\n<defs>${defs}</defs>${body}</svg>\n`;
   }
   return `<svg viewBox="0 0 40 54" aria-hidden="true" focusable="false"><defs>${defs}</defs>${body}</svg>`;
 }
@@ -171,23 +229,79 @@ export function createCafe(deps) {
       setTimeout(() => deps.yanci.thanks(), 2000);
     }
     const bots = deps.seats().map((_, i) => i).filter((i) => i !== by && deps.isBot(i));
-    if (bots.length) setTimeout(() => chat.say(pick(bots), pick(THANKS).replace('{t}', deps.name(by) === 'Ben' ? 'kardeşim' : deps.name(by))), 2600);
+    if (bots.length) setTimeout(() => chat.say(pick(bots), pick(THANKS).replace('{t}', deps.name(by) === 'Oyuncu' ? 'kardeşim' : deps.name(by))), 2600);
   }
 
   function reset() {
     pendingOrders.forEach(clearTimeout);
     pendingOrders = [];
     drinks = {};
+    Object.keys(els).forEach((k) => delete els[k]);
   }
 
-  /** Oyuncu kutusuna takılacak içecek öğesi */
+  // İçecek öğeleri her çizimde yeniden yaratılmaz: aynı öğe yeni çizime taşınır, yalnız seviye değişince bardak tazelenir.
+  // Buhar Web Animations ile döner (CSS animasyonu öğe taşınınca baştan başlardı).
+  const els = {};
+  function steamEl(k) {
+    const s = h('i', { class: `steam s${k}` });
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      s.animate([{ transform: 'translateY(4px) scaleY(.6)', opacity: 0 }, { opacity: 0.75, offset: 0.4 }, { transform: 'translateY(-9px) scaleY(1.3)', opacity: 0 }],
+        { duration: 2600, iterations: Infinity, delay: k === 2 ? 1300 : 0, easing: 'ease-in-out' });
+    }
+    return s;
+  }
+  /** Oyuncu kutusuna takılacak içecek öğesi; dokununca ısmarlama (kendine/herkese ya da yalnız o kişiye) */
   function node(i) {
     if (!on()) return null;
     const d = drinks[i];
     if (!d) return null;
-    const el = h('span', { class: `drink d-${d.type}${DRINKS[d.type].hot && d.level > 0.4 ? ' hot' : ''}`, title: `${DRINKS[d.type].name}`, 'data-drink': String(i) });
-    el.innerHTML = drinkSvg(d.type, d.level, `dk${i}`) + (DRINKS[d.type].hot && d.level > 0.4 ? '<i class="steam s1"></i><i class="steam s2"></i>' : '');
-    return el;
+    const hot = DRINKS[d.type].hot && d.level > 0.4;
+    const lvl = Math.round(d.level * 20);
+    let c = els[i];
+    if (!c || c.type !== d.type) {
+      const el = h('span', { class: 'drink', 'data-drink': String(i), role: 'button', tabindex: '0' });
+      el.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        offer(i);
+      });
+      const cup = h('span', { class: 'cup' });
+      c = els[i] = { el, cup, type: d.type, lvl: -1, steam: null };
+      el.append(cup);
+    }
+    c.el.className = `drink d-${d.type}${hot ? ' hot' : ''}`;
+    c.el.title = i === 0 ? `${DRINKS[d.type].name} · dokun: ısmarla` : `${DRINKS[d.type].name} · dokun: ${i === 'y' ? 'Şerif' : deps.name(i)}'e ısmarla`;
+    if (c.lvl !== lvl) {
+      c.lvl = lvl;
+      c.cup.innerHTML = drinkSvg(d.type, d.level, `dk${i}`);
+    }
+    if (hot && !c.steam) {
+      c.steam = [steamEl(1), steamEl(2)];
+      c.el.append(...c.steam);
+    } else if (!hot && c.steam) {
+      c.steam.forEach((s) => s.remove());
+      c.steam = null;
+    }
+    return c.el;
+  }
+
+  /** İçeceğe dokununca: kendi içeceğin → kendine ya da herkese; başkasınınki → yalnız ona */
+  function offer(i) {
+    if (!deps.dialog) return;
+    if (i === 0) return menu(deps.dialog);
+    const who = i === 'y' ? (settings.get('yanciName') || 'Şerif') : deps.name(i);
+    const close = (ev) => ev.target.closest('.overlay')?.remove();
+    const grid = h('div', { class: 'cafegrid' }, Object.entries(DRINKS).map(([k, v]) => {
+      const b = h('button', { class: 'cafeitem', type: 'button', onclick: (ev) => {
+        close(ev);
+        chat.say(0, `${who}, ${v.name.toLowerCase()} benden!`, 'me');
+        serve(i, k, 1400);
+        if (i === 'y') setTimeout(() => deps.yanci.thanks(), 1900);
+        else if (deps.isBot(i)) setTimeout(() => chat.say(i, pick(THANKS).replace('{t}', deps.name(0))), 2200);
+      } }, h('span', { class: 'ci' }), h('span', {}, v.name));
+      b.firstChild.innerHTML = drinkSvg(k, 1, `o${k}`);
+      return b;
+    }));
+    deps.dialog(h('div', {}, h('div', { class: 'hint' }, `${who}'e ne ısmarlayalım?`), grid), [['Vazgeç']], 'Kahvehane');
   }
 
   /** Çizimden sonra: yeni gelen içecek kenardan kayarak gelir */
@@ -211,7 +325,7 @@ export function createCafe(deps) {
       b.firstChild.innerHTML = icon;
       return b;
     };
-    const grid = h('div', { class: 'cafegrid' }, Object.entries(DRINKS).map(([k, v]) => item(v.name, drinkSvg(k, 1, `m${k}`), () => {
+    const grid = h('div', { class: 'cafegrid' }, Object.entries(DRINKS).map(([k, v]) => item(`Bana ${v.name.toLowerCase()}`, drinkSvg(k, 1, `m${k}`), () => {
       settings.set('myDrink', k);
       chat.say(0, k === 'raki' ? 'Ocakçı, bana bir "çay"… beyazından 😉' : `Bana bir ${v.name.toLowerCase()}`, 'me');
       order(0, k, { say: false, delay: 1500 });
@@ -220,7 +334,7 @@ export function createCafe(deps) {
         const bots = deps.seats().map((_, i) => i).filter((i) => deps.isBot(i));
         if (bots.length) setTimeout(() => chat.say(pick(bots), pick(RAKI_SEEN).replace('{t}', deps.name(0))), 2600);
       }
-    })), item('Çaylar benden!', drinkSvg('cay', 1, 'mtreat'), () => {
+    })), item('Herkese çay benden!', drinkSvg('cay', 1, 'mtreat'), () => {
       chat.say(0, 'Çaylar benden!', 'me');
       deps.seats().forEach((_, i) => i !== 0 && serve(i, 'cay', 1400 + i * 300));
       if (yOn()) {
@@ -228,7 +342,7 @@ export function createCafe(deps) {
         setTimeout(() => deps.yanci.thanks(), 1900);
       }
       const bots = deps.seats().map((_, i) => i).filter((i) => deps.isBot(i));
-      bots.slice(0, 2).forEach((bt, k) => setTimeout(() => chat.say(bt, pick(THANKS).replace('{t}', deps.name(0) === 'Ben' ? 'kardeşim' : deps.name(0))), 2400 + k * 1300));
+      bots.slice(0, 2).forEach((bt, k) => setTimeout(() => chat.say(bt, pick(THANKS).replace('{t}', deps.name(0) === 'Oyuncu' ? 'kardeşim' : deps.name(0))), 2400 + k * 1300));
     }));
     grid.lastChild.classList.add('treat');
     dialog(h('div', {}, h('div', { class: 'hint' }, 'Ocakçıya ne söyleyelim?'), grid), [['Vazgeç']], 'Kahvehane');

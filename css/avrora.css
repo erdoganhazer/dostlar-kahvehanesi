@@ -533,7 +533,8 @@ table.sheet th, table.sheet td { border: 1px solid #d8c8a4; }
 .ks-left .drink { right: -36px; bottom: 6px; }
 .ks-right .drink { left: -36px; bottom: 6px; }
 /* Sıcak içecekten buhar (süs; kart animasyonu değil). Hareket azaltılmışsa yok. */
-.drink .steam { position: absolute; top: -6px; width: 3px; height: 10px; border-radius: 3px; background: rgba(255,255,255,.6); filter: blur(1px); opacity: 0; animation: steam 2.6s ease-in-out infinite; }
+.drink .steam { position: absolute; top: -6px; width: 3px; height: 10px; border-radius: 3px; background: rgba(255,255,255,.6); filter: blur(1px); opacity: 0; }
+.drink { cursor: pointer; pointer-events: auto; } .drink .cup, .drink .cup svg { display: block; width: 100%; height: 100%; }
 .drink .s1 { left: 10px; } .drink .s2 { left: 15px; animation-delay: 1.3s; }
 @keyframes steam { 0% { transform: translateY(4px) scaleY(.6); opacity: 0; } 40% { opacity: .75; } 100% { transform: translateY(-9px) scaleY(1.3); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .drink .steam { display: none; } }
@@ -654,6 +655,16 @@ table.sheet th, table.sheet td { border: 1px solid #d8c8a4; }
 .ybin .cn { font-weight: 800; white-space: nowrap; }
 .ybin .cn.rd { color: #c0261b; } .ybin .cn.bk { color: #14213d; } .ybin .cn.jk { color: #6b2fa0; }
 .installbtn { max-width: 320px; margin: 16px auto 0; }
+.yav .yface { all: unset; cursor: pointer; display: block; border-radius: 50%; }
+.yav .yface:focus-visible { outline: 2px solid var(--rimhi); outline-offset: 2px; }
+.yav .ymute { all: unset; cursor: pointer; position: absolute; right: -6px; top: -4px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 12px; background: #2a140b; border: 1.5px solid var(--rimhi); box-shadow: 0 2px 4px rgba(0,0,0,.4); }
+.yav .ymute.on { background: #6b1010; }
+.av.drawn { overflow: hidden; } .av.drawn svg { display: block; width: 100%; height: 100%; }
+.avpick .av { width: 44px; height: 44px; display: block; border-radius: 50%; overflow: hidden; }
+/* Sinirli bot: kutu hafifçe kızarır (yanıp sönmez); çok sinirliyse yüzü kızarır */
+.ks.angry { box-shadow: 0 0 0 2px rgba(200,40,20,.55), 0 0 14px rgba(200,40,20,.35); }
+.ks.furious .av { filter: sepia(.4) saturate(2.2) hue-rotate(-25deg); }
 .pausebtn .pz{display:inline-flex;gap:4px;align-items:center;justify-content:center;height:16px}
 .pausebtn .pz i{display:block;width:4px;height:15px;border-radius:2px;background:currentColor}
 .pend, .kc.pend, .pc.pend { visibility: hidden !important; }

@@ -160,7 +160,8 @@ await test('bot: hafıza maç başında sıfırlanır, olaylar birikir', async (
 await test('oyuncu listesi: ekle/güncelle/sırala/sil, geçersiz değerler düzeltilir', () => {
   const st = createStorage('t1');
   const r = new Roster(st);
-  assert.equal(r.list().length, 6);
+  assert.equal(r.list().length, 3); // en fazla 3 hazır oyuncu (masada 4 kişi)
+  r.remove(r.list()[2].id);
   const b = r.add({ name: '   Çok Uzun Bir İsimdir Bu   ', level: 9, style: 'x' });
   assert.equal(b.name.length, 14);
   assert.equal(b.level, 2);

@@ -1,6 +1,6 @@
 // Dostlar Kahvehanesi servis işçisi: oyunu cihaza indirir, internetsiz de açılır.
 // Bu dosya tools/build-sw.mjs ile üretilir; elle düzenleme (tools/sw.template.js'i düzenle).
-const VERSION = 'e1a4d56073b9';
+const VERSION = '2ee1c1dcd1bf';
 const CACHE = `kahvehane-${VERSION}`;
 const FILES = [
  "./",
@@ -108,6 +108,14 @@ const FILES = [
  "./assets/cards/S7.webp",
  "./assets/cards/S8.webp",
  "./assets/cards/S9.webp",
+ "./assets/drinks/ayran.svg",
+ "./assets/drinks/cay.svg",
+ "./assets/drinks/kahve.svg",
+ "./assets/drinks/oralet.svg",
+ "./assets/drinks/raki.svg",
+ "./assets/drinks/salep.svg",
+ "./assets/drinks/soda.svg",
+ "./assets/drinks/su.svg",
  "./assets/fonts/nunito-sans-latin-400-normal.woff2",
  "./assets/fonts/nunito-sans-latin-600-normal.woff2",
  "./assets/fonts/nunito-sans-latin-700-normal.woff2",

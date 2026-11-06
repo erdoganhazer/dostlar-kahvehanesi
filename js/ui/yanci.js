@@ -1,5 +1,6 @@
 // Yancı: oyuncunun sağ alt yanında oturan karakter; yönerge ve oyun sohbeti onun konuşma balonundan gelir.
-// Modlar (ayar 'yanciMode'): 'yonerge' (öneri + hamle yorumu), 'sohbet' (oyunu muhabbetle takip eder, ders vermez), 'kapali'.
+// Ayar 'yanciMode': 'sohbet' (oyunu muhabbetle takip eder) ya da 'sessiz' (altındaki 🔇 ile susturulur).
+// Resmine dokununca o anın ipucunu verir (sessizken de).
 // Balon yerinde güncellenir (yeniden çizim beklemez; uçuş sırasında da güvenli). Kahvehane içeceği cafe.node('y') ile gelir.
 import { avatarNode } from './avatar.js';
 import { sfx } from './sfx.js';
@@ -23,8 +24,7 @@ const L = {
   start: ['Hadi bakalım, hayırlısı.', 'Kartlar dağılıyor, gözüm üstünde.', 'Bugün şanslı günündesin, hissediyorum.'],
 };
 
-export const YANCI_MODES = [['yonerge', 'Yönerge (öneri ve yorum)'], ['sohbet', 'Sohbet (oyunu muhabbetle takip eder)'], ['kapali', 'Kapalı']];
-export const YANCI_DEFAULT = { name: 'Hüsnü Abi', avatar: '👴' };
+export const YANCI_DEFAULT = { name: 'Şerif', avatar: 'a4' };
 
 /** deps: { h, settings, cafe } */
 export function createYanci(deps) {
@@ -32,7 +32,10 @@ export function createYanci(deps) {
   let talk = ''; // sohbet modunda son söz
   let lastSaid = 0;
   let bubble = null;
-  const mode = () => settings.get('yanciMode') || 'yonerge';
+  const mode = () => (settings.get('yanciMode') === 'sessiz' ? 'sessiz' : 'sohbet');
+  let hint = null; // { nodes, until }
+  let richFn = (t) => t;
+  let hintT = 0;
   const name = () => settings.get('yanciName') || YANCI_DEFAULT.name;
   const fill = (t, o = {}) => t.replace('{m}', o.m ?? '').replace('{n}', o.n ?? '');
 
@@ -45,7 +48,8 @@ export function createYanci(deps) {
     talk = text;
     sfx.msg();
     if (bubble?.isConnected) {
-      bubble.replaceChildren(h('div', { class: 'ytalk' }, talk));
+      if (hint) return; // ipucu gösterilirken sohbet araya girmez
+      bubble.replaceChildren(h('div', { class: 'ytalk' }, richFn(talk)));
       bubble.parentElement.classList.remove('empty');
       bubble.parentElement.animate?.([{ opacity: 0.4 }, { opacity: 1 }], { duration: 250 });
     }
@@ -54,7 +58,7 @@ export function createYanci(deps) {
   /** Kahvehane ve oyun olayları (sohbet modunda) */
   const api = {
     mode,
-    on: () => mode() !== 'kapali',
+    on: () => true,
     reset() {
       talk = '';
       lastSaid = 0;
@@ -63,16 +67,7 @@ export function createYanci(deps) {
       say(pick(L.start), true);
     },
     thanks() {
-      if (mode() === 'kapali') return;
-      const t = pick(L.thanks);
-      if (mode() === 'sohbet') say(t, true);
-      else if (bubble?.isConnected) {
-        // yönerge modunda teşekkür kısa süre balonun başında görünür
-        const el = h('div', { class: 'ytalk' }, t);
-        bubble.prepend(el);
-        bubble.parentElement.classList.remove('empty');
-        setTimeout(() => el.remove(), 3500);
-      }
+      if (mode() === 'sohbet') say(pick(L.thanks), true);
     },
     refill() {
       say(pick(L.refill), true);
@@ -108,19 +103,52 @@ export function createYanci(deps) {
       say(pick(won ? L.win : L.lose), true);
     },
 
-    /**
-     * Yancının düğümü. lines: yönerge modunda gösterilecek satırlar (table-kit hazırlar), drink: kahvehane içeceği
-     */
-    node({ lines = [], drink = null } = {}) {
-      if (mode() === 'kapali') {
-        // süre bitti uyarısı gibi zorunlu satırlar yine görünsün (balonsuz, küçük)
-        return lines.length ? h('div', { class: 'yanci off' }, h('div', { class: 'ybubble' }, h('div', { class: 'ybin' }, lines))) : null;
+    /** İpucu göster (resmine dokununca): balonda birkaç saniye kalır */
+    showHint(nodes) {
+      hint = { nodes, until: performance.now() + 9000 };
+      clearTimeout(hintT);
+      hintT = setTimeout(() => {
+        hint = null;
+        if (bubble?.isConnected) {
+          bubble.replaceChildren(...(mode() === 'sohbet' && talk ? [h('div', { class: 'ytalk' }, talk)] : []));
+          if (!(mode() === 'sohbet' && talk)) bubble.parentElement.classList.add('empty');
+        }
+      }, 9000);
+      if (bubble?.isConnected) {
+        bubble.replaceChildren(h('div', { class: 'ytalk plain' }, nodes));
+        bubble.parentElement.classList.remove('empty');
+        bubble.parentElement.animate?.([{ opacity: 0.4 }, { opacity: 1 }], { duration: 250 });
       }
-      const content = mode() === 'yonerge' ? lines : talk ? [h('div', { class: 'ytalk' }, talk)] : [];
+      sfx.msg();
+    },
+    /**
+     * Yancının düğümü. lines: zorunlu satırlar (süre bitti gibi), drink: içeceği, onTap: resmine dokununca (ipucu)
+     */
+    node({ lines = [], drink = null, onTap = null, rich = (t) => t } = {}) {
+      richFn = rich;
+      let content;
+      if (hint && performance.now() < hint.until) content = [h('div', { class: 'ytalk plain' }, hint.nodes)];
+      else if (lines.length) content = lines;
+      else content = mode() === 'sohbet' && talk ? [h('div', { class: 'ytalk' }, rich(talk))] : [];
       bubble = h('div', { class: 'ybin' }, content);
       const outer = h('div', { class: `ybubble${content.length ? '' : ' empty'}`, role: 'status' }, bubble);
-      const av = h('div', { class: 'yav', title: name() }, avatarNode(settings.get('yanciPhoto') || '', settings.get('yanciAvatar') || YANCI_DEFAULT.avatar),
-        h('span', { class: 'yname' }, name()), drink ? h('span', { class: 'ydrink' }, drink) : null);
+      const mute = h('button', { class: `ymute${mode() === 'sessiz' ? ' on' : ''}`, type: 'button', title: mode() === 'sessiz' ? 'Konuşsun' : 'Sustur',
+        onclick: (ev) => {
+          ev.stopPropagation();
+          const m = mode() === 'sessiz' ? 'sohbet' : 'sessiz';
+          settings.set('yanciMode', m);
+          talk = '';
+          ev.currentTarget.classList.toggle('on', m === 'sessiz');
+          ev.currentTarget.textContent = m === 'sessiz' ? '🔇' : '🔊';
+          ev.currentTarget.title = m === 'sessiz' ? 'Konuşsun' : 'Sustur';
+          if (bubble?.isConnected && !hint) {
+            bubble.replaceChildren();
+            bubble.parentElement.classList.add('empty');
+          }
+        } }, mode() === 'sessiz' ? '🔇' : '🔊');
+      const face = h('button', { class: 'yface', type: 'button', title: `${name()}: dokun, ipucu versin`, onclick: () => onTap && onTap() },
+        avatarNode(settings.get('yanciPhoto') || '', settings.get('yanciAvatar') || YANCI_DEFAULT.avatar));
+      const av = h('div', { class: 'yav' }, face, h('span', { class: 'yname' }, name()), mute, drink ? h('span', { class: 'ydrink' }, drink) : null);
       return h('div', { class: 'yanci' }, outer, av);
     },
   };

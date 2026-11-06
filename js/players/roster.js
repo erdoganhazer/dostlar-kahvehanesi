@@ -1,19 +1,18 @@
 // Oyuncu listesi: aynı botlar TÜM oyunlarda kullanılır. Ayarlardan düzenlenir, cihazda saklanır.
 import { Bot } from './bot.js';
 
-export const AVATARS = ['🧔', '👴', '👳', '👩', '👨‍🦳', '👵', '🧑‍💼', '🕵️', '🤠', '👩‍🎤', '🧙', '🦊', '🐻', '🤖'];
-export const MAX_BOTS = 12;
+// Çizimle yapılmış yüzler (js/ui/avatar.js); emoji yok
+export const AVATARS = ['a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8'];
+// Masada en fazla 4 kişi: sen + 3 hazır oyuncu
+export const MAX_BOTS = 3;
 const LEVELS = [1, 2, 3];
 const STYLES = ['temkinli', 'dengeli', 'atak'];
 const SPEEDS = ['hizli', 'normal', 'yavas'];
 
 export const DEFAULT_BOTS = [
-  { id: 'bot-kemal', name: 'Kemal', avatar: '🧔', level: 2, style: 'dengeli', speed: 'normal', active: true },
-  { id: 'bot-ayse', name: 'Ayşe', avatar: '👩', level: 2, style: 'temkinli', speed: 'normal', active: true },
-  { id: 'bot-murat', name: 'Murat', avatar: '🕵️', level: 3, style: 'atak', speed: 'normal', active: true },
-  { id: 'bot-zeynep', name: 'Zeynep', avatar: '👩‍🎤', level: 1, style: 'dengeli', speed: 'hizli', active: true },
-  { id: 'bot-cemal', name: 'Cemal', avatar: '👨‍🦳', level: 3, style: 'temkinli', speed: 'yavas', active: true },
-  { id: 'bot-elif', name: 'Elif', avatar: '🧙', level: 2, style: 'atak', speed: 'normal', active: true },
+  { id: 'bot-1', name: 'Kemal', avatar: 'a1', level: 2, style: 'dengeli', speed: 'normal', active: true },
+  { id: 'bot-2', name: 'Murat', avatar: 'a2', level: 3, style: 'atak', speed: 'normal', active: true },
+  { id: 'bot-3', name: 'Cemal', avatar: 'a3', level: 2, style: 'temkinli', speed: 'normal', active: true },
 ];
 
 export const validPhoto = (p) => (typeof p === 'string' && /^data:image\/(jpeg|png|webp);base64,/.test(p) && p.length < 60000 ? p : '');
@@ -35,7 +34,13 @@ export class Roster {
   constructor(storage) {
     this.storage = storage;
     const saved = storage.get('roster.v1', null);
-    this.bots = Array.isArray(saved) && saved.length ? saved.map((b) => ({ stats: {}, ...b })) : this._defaults();
+    this.bots = Array.isArray(saved) && saved.length ? saved.map((b, k) => ({ ...sanitize({ stats: {}, ...b }), ...(AVATARS.includes(b.avatar) ? {} : { avatar: AVATARS[k % AVATARS.length] }) })) : this._defaults();
+    // en fazla 3 hazır oyuncu: fazlası (önce etkin olanlar kalır) atılır
+    if (this.bots.length > MAX_BOTS) {
+      this.bots = [...this.bots.filter((b) => b.active), ...this.bots.filter((b) => !b.active)].slice(0, MAX_BOTS);
+      this.bots.forEach((b) => (b.active = true));
+      this._save();
+    }
   }
 
   _defaults() {
@@ -100,7 +105,7 @@ export class Roster {
   }
 
   /** Koltuk listesi üretir: insan + (n-1) bot. */
-  seatsFor(game, humanName = 'Ben', players = game.maxPlayers) {
+  seatsFor(game, humanName = 'Oyuncu', players = game.maxPlayers) {
     const bots = this.pick(players - 1);
     if (bots.length < players - 1) {
       throw new Error(`Bu oyun için ${players - 1} aktif oyuncu gerekli, ${bots.length} var. Ayarlar > Oyuncular'dan etkinleştir.`);

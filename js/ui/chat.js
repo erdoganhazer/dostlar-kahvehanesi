@@ -23,6 +23,8 @@ const L = {
   finish: ['Bittim!', 'Konken!', 'Eller yukarı, bittim'],
   rebuy: ['Bitmedi daha, giriyorum!', 'Çanağa koydum, devam!', 'Bu çanak bana gelecek, görürsünüz', 'Yandım ama pes yok'],
   quit: ['Bana bu kadar, kalkıyorum', 'Cebimi korurum, çekildim', 'Siz devam edin, ben çayımı içerim'],
+  angry: ['Bu kâğıtlar kimin elinden çıktı yahu!', 'Yine mi ben!', 'Bir dağıt şunu adam gibi!', 'Bugün de şansım yok', 'Of of, sinir oldum ama', 'Bu deste bozuk bence'],
+  furious: ['Yeter ama! Masayı devireceğim!', 'Kalkıyorum bu masadan… şaka şaka, dağıt!', 'Ocakçı! Bana bir çay, sinirimi alsın!', 'Bu nasıl iş! Hep bana mı geliyor?', 'Bir daha oynarsam bana da…'],
   burn: ['{t} yandı!', 'Geçmiş olsun {t}, yandın', 'Yanık kokusu geliyor, {t}', '{t} yüzü geçti!'],
   opened: ['Açtım!', 'Perler yerde', 'Hadi bakalım, açtım'],
   marriage: ['Evlilik var!', 'Düğünümüz var, buyrun', 'Papazla kız evlendi', 'Kırk! Koz evliliği'],
@@ -112,7 +114,7 @@ export function createChat(deps) {
 
   const fill = (text, t) => {
     const nm = t == null ? '' : deps.name(t);
-    const who = nm === 'Ben' || !nm ? 'kardeşim' : nm;
+    const who = nm === 'Oyuncu' || nm === 'Ben' || !nm ? 'kardeşim' : nm;
     return text.replace('{t}', who);
   };
 
@@ -145,10 +147,30 @@ export function createChat(deps) {
   }
 
   /** Oyun olayları (table-kit her hamleden sonra çağırır) */
+  // Sinirlenme (ayar 'anger'): üst üste kaybeden botun sinir seviyesi 0-3; yüksekse söylenir, kutusu kızarır
+  const anger = new Map();
+  const angerOf = (i) => (deps.settings?.get?.('anger') === false ? 0 : anger.get(i) || 0);
+  function trackAnger(ev, sBefore, sAfter) {
+    const moment = ev.trickDone || ev.dealEnd || ev.handEnd || ev.roundEnd || ev.roundEnded;
+    if (!moment || !sBefore || !sAfter || deps.settings?.get?.('anger') === false) return false;
+    let spoke = false;
+    sAfter.forEach((v, i) => {
+      if (!deps.isBot(i)) return;
+      const d = v - sBefore[i];
+      if (d < 0) anger.set(i, Math.min(3, (anger.get(i) || 0) + 1));
+      else if (d > 0) anger.set(i, Math.max(0, (anger.get(i) || 0) - 1));
+      const a = anger.get(i) || 0;
+      if (d < 0 && a >= 2 && !spoke && Math.random() < (a === 3 ? 0.8 : 0.45)) spoke = botLine(i, [a === 3 ? 'furious' : 'angry'], 0, { force: true });
+    });
+    if (spoke) deps.render?.();
+    return spoke;
+  }
+
   function onMove(gameId, e, before, after, sBefore, sAfter) {
     if (!on()) return;
     const ev = e.event || {};
     const seat = e.seat;
+    if (trackAnger(ev, sBefore, sAfter)) return;
     // oyuna özel anlar
     if (gameId === 'pisti' && ev.bonus) return botLine(seat, ['pisti'], null, { force: true }) || reactTo(null, (seat + 1) % deps.seats().length);
     if (gameId === 'fanti' && ev.take?.length >= 3 && +ev.card.slice(1) === 11) return botLine(seat, ['fanti'], null, { force: true });
@@ -280,7 +302,7 @@ export function createChat(deps) {
     panel.hidden = true;
   }
 
-  return { say, onMove, onStart, onEnd, onHumanSlow, human, nodes, button, clear };
+  return { say, onMove, onStart, onEnd, onHumanSlow, human, nodes, button, clear, angerOf, resetAnger: () => anger.clear() };
 }
 
 function shuffle(a) {

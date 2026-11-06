@@ -14,7 +14,7 @@ import * as A from './anim.js';
 import { advise, review } from './tutor.js';
 import { createChat } from './chat.js';
 import { createCafe } from './kahvehane.js';
-import { createYanci, YANCI_MODES } from './yanci.js';
+import { createYanci } from './yanci.js';
 import { sfx } from './sfx.js';
 
 /** Yatay yerleşim (css/avrora.css'teki @media ile aynı koşul) */
@@ -92,21 +92,9 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
   // Yönerge: sıra sendeyken öneri, hamlenden sonra değerlendirme (js/ui/tutor.js)
   let advice = null;
   let lastReview = null;
-  // Yancı (js/ui/yanci.js): yönerge ve oyun sohbeti onun balonundan gelir. ☰ menüde mod değişir: Yönerge → Sohbet → Kapalı
+  // Yancı (js/ui/yanci.js): oyun sohbeti onun balonundan gelir; resmine dokununca ipucu verir; altındaki 🔇 ile susar.
   const yanci = createYanci({ h, settings });
-  const tutorOn = () => yanci.mode() === 'yonerge';
-  const MODE_NAME = { yonerge: 'Yönerge', sohbet: 'Sohbet', kapali: 'Kapalı' };
-  const tutorLabel = () => `Yancı: ${MODE_NAME[yanci.mode()]}`;
-  const tutorBtn = h('button', { onclick: () => {
-    const order = YANCI_MODES.map(([k]) => k);
-    settings.set('yanciMode', order[(order.indexOf(yanci.mode()) + 1) % order.length]);
-    tutorBtn.textContent = tutorLabel();
-    if (!tutorOn()) {
-      advice = null;
-      lastReview = null;
-    }
-    render();
-  } }, tutorLabel());
+  const tutorOn = () => false; // sürekli öneri yok; ipucu yalnız yancının resmine dokununca
   // Sohbet (js/ui/chat.js)
   const chat = createChat({
     h, body, settings,
@@ -115,11 +103,12 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
     pos: (i) => POSITIONS[seats.length]?.[i] ?? 'bottom',
     isBot: (i) => seats[i]?.kind === 'bot',
     styleOf: (i) => roster.get(seats[i]?.id)?.style ?? 'dengeli',
+    render: () => safeRender(),
   });
 
   // Kahvehane: oyuncuların yanında içecekler (js/ui/kahvehane.js). Çizim uçuş sırasında yapılmaz (yer tutucular bozulmasın).
   const cafe = createCafe({
-    h, settings, chat,
+    h, settings, chat, dialog,
     seats: () => seats,
     name: (i) => seats[i]?.name ?? '?',
     isBot: (i) => seats[i]?.kind === 'bot',
@@ -243,11 +232,9 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
       });
     })] : []),
     item('Kurallar', () => spec.rules && dialog(spec.rules(h), [['Tamam']], `${spec.title} kuralları`)),
-    tutorBtn,
     item('Yeni oyun', () => newGame(true)),
     item('Ana menü', () => go('menu')),
   );
-  tutorBtn.addEventListener('click', closeDd);
   const ham = h('button', { class: 'ham', 'aria-label': 'Menü', onclick: (ev) => { ev.stopPropagation(); dd.hidden = !dd.hidden; } },
     h('span', { 'aria-hidden': 'true', style: 'font-size:18px;line-height:1' }, '☰'));
   const menu = [h('button', { class: 'back', 'aria-label': 'Ana menüye dön', onclick: () => go('menu') }, '‹'), pauseBtn, cafeBtn, chat.button(), ham, dd];
@@ -368,7 +355,8 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
     /** Üst: karşı koltuk, orta: [sol | alan | sağ], alt: bilgi satırları */
     table({ area, info, chipSub = () => '', chipCls = () => '', count = () => null }) {
       const at = (p) => POSITIONS[ctx.n].indexOf(p);
-      const chip = (p) => (at(p) >= 0 ? ctx.chip(at(p), chipSub(at(p)), chipCls(at(p)), count(at(p))) : h('div', { class: 'ks ghost' }));
+      const mad = (i) => ['', '', ' angry', ' angry furious'][chat.angerOf(i)] || '';
+      const chip = (p) => (at(p) >= 0 ? ctx.chip(at(p), chipSub(at(p)), chipCls(at(p)) + mad(at(p)), count(at(p))) : h('div', { class: 'ks ghost' }));
       return h('div', { class: 'ktable' },
         h('div', { class: 'toprow' }, sheetMini(), at('top') >= 0 ? chip('top') : null),
         h('div', { class: 'mid' }, chip('left'), area, chip('right')),
@@ -425,7 +413,7 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
             onTap(c, ok2);
           },
         }, back ? cardEl(null) : cardEl(parseCard(c)));
-        if (drag && !back) dragable(b, c, row);
+        if (drag && !back) dragable(b, c);
         return b;
       }));
       return row;
@@ -482,54 +470,64 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
     return handOrder.slice();
   };
   /** Sürükle-bırak: kart parmağı/fareyi izler, bırakınca araya girer; diğerleri kayarak yer açar (FLIP). */
-  function dragable(btn, c, row) {
-    let sx = 0;
-    let sy = 0;
-    let on = false;
-    let moved = false;
-    const others = () => [...row.querySelectorAll('.kc')].filter((e) => e !== btn);
+  // Sürükleme durumu çizimden bağımsız tutulur: başka biri kart atıp ekran yeniden çizilse de sürükleme sürer
+  // (pencere dinleyicileri; her çizimde sürüklenen kartın yeni öğesi bulunup aynı konuma konur).
+  let drag = null; // { c, sx, sy, dx, dy, moved, pid }
+  const dragEl = () => (drag ? body.querySelector(`.khand.dragrow .kc[data-card="${CSS.escape(drag.c)}"]`) : null);
+  function dragApply() {
+    const el = dragEl();
+    if (!el || !drag?.moved) return;
+    el.classList.add('dragging');
+    el.style.transform = `translate(${drag.dx}px, ${Math.min(0, drag.dy)}px)`;
+  }
+  function onDragMove(ev) {
+    if (!drag || ev.pointerId !== drag.pid) return;
+    drag.dx = ev.clientX - drag.sx;
+    drag.dy = ev.clientY - drag.sy;
+    if (!drag.moved && Math.hypot(drag.dx, drag.dy) < 10) return;
+    drag.moved = true;
+    ev.preventDefault();
+    dragApply();
+  }
+  function onDragEnd(ev) {
+    if (!drag || ev.pointerId !== drag.pid) return;
+    const d = drag;
+    drag = null;
+    removeEventListener('pointermove', onDragMove);
+    removeEventListener('pointerup', onDragEnd);
+    removeEventListener('pointercancel', onDragEnd);
+    if (!d.moved) return;
+    const el = body.querySelector(`.khand.dragrow .kc[data-card="${CSS.escape(d.c)}"]`);
+    if (el) {
+      el.classList.remove('dragging');
+      el._dragged = true; // ardından gelen click yok sayılır
+      setTimeout(() => (el._dragged = false), 0);
+    }
+    const row = el?.closest('.khand');
+    if (!row || !handOrder) return;
+    const rest = [...row.querySelectorAll('.kc')].filter((e) => e !== el);
+    let idx = rest.findIndex((e) => {
+      const r = e.getBoundingClientRect();
+      return ev.clientX < r.left + r.width / 2;
+    });
+    if (idx < 0) idx = rest.length;
+    const ids = rest.map((e) => e.dataset.card);
+    ids.splice(idx, 0, d.c);
+    // görünmeyen (uçuşta olan) kartlar varsa sıranın geri kalanını koru
+    handOrder = ids.concat(handOrder.filter((k) => !ids.includes(k)));
+    manual = true;
+    if (body.querySelector('#fx .fxw') || document.querySelector('#fx .fxw')) safeRender();
+    else render(); // FLIP: sürüklenen kart bırakıldığı yerden yuvasına kayar
+  }
+  function dragable(btn, c) {
     btn.addEventListener('pointerdown', (ev) => {
-      if (ev.button > 0 || !handOrder) return;
-      sx = ev.clientX;
-      sy = ev.clientY;
-      on = true;
-      moved = false;
+      if (ev.button > 0 || !handOrder || drag) return;
+      drag = { c, sx: ev.clientX, sy: ev.clientY, dx: 0, dy: 0, moved: false, pid: ev.pointerId };
+      addEventListener('pointermove', onDragMove, { passive: false });
+      addEventListener('pointerup', onDragEnd);
+      addEventListener('pointercancel', onDragEnd);
     });
-    btn.addEventListener('pointermove', (ev) => {
-      if (!on) return;
-      const dx = ev.clientX - sx;
-      const dy = ev.clientY - sy;
-      if (!moved && Math.hypot(dx, dy) < 10) return;
-      if (!moved) {
-        moved = true;
-        btn.setPointerCapture(ev.pointerId);
-        btn.classList.add('dragging');
-      }
-      btn.style.transform = `translate(${dx}px, ${Math.min(0, dy)}px)`;
-    });
-    const end = (ev) => {
-      if (!on) return;
-      on = false;
-      if (!moved) return;
-      btn.classList.remove('dragging');
-      btn._dragged = true; // ardından gelen click yok sayılır
-      setTimeout(() => (btn._dragged = false), 0);
-      const x = ev.clientX;
-      const rest = others();
-      let idx = rest.findIndex((e) => {
-        const r = e.getBoundingClientRect();
-        return x < r.left + r.width / 2;
-      });
-      if (idx < 0) idx = rest.length;
-      const ids = rest.map((e) => e.dataset.card);
-      ids.splice(idx, 0, c);
-      // görünmeyen (uçuşta olan) kartlar varsa sıranın geri kalanını koru
-      handOrder = ids.concat(handOrder.filter((k) => !ids.includes(k)));
-      manual = true;
-      render(); // FLIP: sürüklenen kart bırakıldığı yerden yuvasına kayar
-    };
-    btn.addEventListener('pointerup', end);
-    btn.addEventListener('pointercancel', end);
+    if (drag && drag.c === c && drag.moved) requestAnimationFrame(dragApply);
   }
 
   // Ekran döndürülünce/boyut değişince yeniden çiz; kart uçarken çizilmez (yer tutucular bozulmasın), uçuş bitince çizilir.
@@ -633,12 +631,25 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
     const lc = (t) => (/^(Maça|Kupa|Karo|Sinek|Joker)/.test(t) ? t : `${t.charAt(0).toLocaleLowerCase('tr')}${t.slice(1)}`);
     const timeout = lastReview?.timeout;
     const talk = (t) => lines.push(h('div', { class: 'ytalk plain' }, richCards(t)));
-    if (tutorOn()) {
-      if (advice && pending) talk(`${openerFor(advice)(advice.label, lc)}${advice.text ? ` ${advice.text}` : ''}`);
-      else if (timeout) talk(`Süren bitti, senin yerine oynadım: ${lastReview.better}.`);
-      else if (lastReview) talk(lastReview.good ? pickPraise() : `Daha iyisi vardı: ${lastReview.better}.`);
-    } else if (timeout) talk(`Süren bitti, senin yerine oynadım: ${lastReview.better}.`);
-    return yanci.node({ lines, drink: cafe.node('y') });
+    if (timeout) talk(`Süren bitti, senin yerine oynadım: ${lastReview.better}.`);
+    return yanci.node({ lines, drink: cafe.node('y'), onTap: () => yanci.showHint(richCards(hintText(lc))), rich: richCards });
+  }
+  /** Yancının resmine dokununca: sıra sendeyse ne yapacağın, değilse oyunun gidişatı */
+  function hintText(lc) {
+    if (!state) return 'Masa daha kuruluyor, bir dakika.';
+    if (spec.game.isOver(state)) return 'Oyun bitti. Bir el daha atalım mı?';
+    if (advice && pending) return `${openerFor(advice)(advice.label, lc)}${advice.text ? ` ${advice.text}` : ''}`;
+    const turn = spec.game.currentActor(state);
+    try {
+      const t = spec.tally ? spec.tally(state) : { head: 'Puan', totals: spec.game.scores(state) };
+      const me = t.totals[0];
+      const others = t.totals.filter((_, i) => i !== 0);
+      const lead = t.head === 'Ceza' ? me <= Math.min(...others) : me >= Math.max(...others);
+      const who = turn != null && turn !== 0 ? `${ctx.name(turn)} düşünüyor. ` : '';
+      return `${who}${lead ? 'Şimdilik iyi gidiyorsun, bozma.' : 'Biraz gerideyiz; sıra sana gelince sor, beraber bakalım.'}`;
+    } catch {
+      return 'Sıra sana gelince dokun, ne yapacağını söylerim.';
+    }
   }
 
   /** Kural §9: uçuşu bekleyen kart ekranda görünmemeli. Görünüyorsa hata yaz ve zorla gizle. */
@@ -814,6 +825,7 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
     chat.clear();
     cafe.reset();
     yanci.reset();
+    chat.resetAnger();
     sheetRows = [];
     spec.reset?.(ctx);
   }

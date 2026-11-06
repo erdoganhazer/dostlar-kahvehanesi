@@ -1,7 +1,7 @@
 // Kart çizimi: renk işaretleri ve resimli kart amblemleri SVG (her cihazda aynı görünür, emojiye dönüşmez).
 // Kart yüzü: sol üstte büyük sayı/harf ve hemen altında küçük renk (üst üste binince ikisi birlikte görünür),
 // ortada büyük renk ya da resimli kartta amblem (papaz: sivri taç, kız: incili taç, vale: kalkan).
-// Renkler CSS'te (.card.face, .four ile dört renkli deste). Arkalık: bordo-altın desen ve "KS" amblemi.
+// Renkler CSS'te (.card.face, .four ile dört renkli deste). Arkalık: bordo-altın desen (yazısız).
 
 const V = 'viewBox="0 0 100 100" aria-hidden="true" focusable="false"';
 export const SUIT_SVG = {
@@ -48,11 +48,7 @@ export function cardBack(photo = '') {
     el.style.backgroundImage = `url("${photo}")`;
     return el;
   }
-  const el = span('card back');
-  const m = span('bk');
-  m.textContent = 'KS';
-  el.append(m);
-  return el;
+  return span('card back');
 }
 
 /** Joker */

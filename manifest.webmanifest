@@ -1,6 +1,6 @@
 {
   "name": "Dostlar Kahvehanesi",
-  "short_name": "Kahvehane",
+  "short_name": "Dostlar Kahvehanesi",
   "description": "Kahvehane kâğıt oyunları: King, Batak, Pişti, Konken, Yanık ve fazlası; botlarla, yancıyla, çayla.",
   "lang": "tr",
   "start_url": "./index.html",
