@@ -191,3 +191,5 @@ Kural (SERVIS-MANUELI): masadaki öğeler içerik değişince yükseklik değiş
 - Kullanıcı: eski Android'leri unut; Windows ve güncel Android yeterli. Google Sites'tan vazgeçti, "GitHub yapalım". GitHub kullanıcısı: erdoganhazer. Godot'ya geçiş ileride gerekirse.
 - Eklendi: manifest (ad, simgeler, tam ekran), servis işçisi (122 dosyayı cihaza indirir, internetsiz açılır; yeni sürüm bir sonraki açılışta devreye girer, oyun ortasında yenilenmez), amblemden üretilmiş simgeler (192, 512, maskable, Apple), ana menüde "📲 Uygulama olarak yükle" düğmesi (tarayıcı izin verince), GitHub Actions yayın akışı (test → sw.js → Pages).
 - Denendi: yerelde servis işçisi devreye giriyor, internet kesikken menü ve Gin açılıyor.
+- 06.11.2026: Depo erdoganhazer/dostlar-kahvehanesi oluşturuldu (kullanıcı), ilk gönderim yapıldı, Pages kaynağı GitHub Actions (kullanıcı açtı). Yayın: https://erdoganhazer.github.io/dostlar-kahvehanesi/
+- Bundan sonra güncellemeler bu depoya gönderilir; claude.ai önizlemesi ikincil.
