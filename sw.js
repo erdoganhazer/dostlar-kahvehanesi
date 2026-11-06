@@ -1,0 +1,156 @@
+// Dostlar Kahvehanesi servis işçisi: oyunu cihaza indirir, internetsiz de açılır.
+// Bu dosya tools/build-sw.mjs ile üretilir; elle düzenleme (tools/sw.template.js'i düzenle).
+const VERSION = 'e1a4d56073b9';
+const CACHE = `kahvehane-${VERSION}`;
+const FILES = [
+ "./",
+ "./index.html",
+ "./manifest.webmanifest",
+ "./css/avrora.css",
+ "./css/fonts.css",
+ "./js/core/cards.js",
+ "./js/core/engine.js",
+ "./js/core/game-api.js",
+ "./js/core/rng.js",
+ "./js/core/storage.js",
+ "./js/games/altmisalti.js",
+ "./js/games/batak.js",
+ "./js/games/blackjack.js",
+ "./js/games/blof-util.js",
+ "./js/games/blof.js",
+ "./js/games/esek.js",
+ "./js/games/fanti.js",
+ "./js/games/gin.js",
+ "./js/games/index.js",
+ "./js/games/king.js",
+ "./js/games/konken.js",
+ "./js/games/papazkacti.js",
+ "./js/games/pisti.js",
+ "./js/games/poker.js",
+ "./js/games/yanik.js",
+ "./js/players/bot.js",
+ "./js/players/roster.js",
+ "./js/players/settings.js",
+ "./js/ui/altmisalti-table.js",
+ "./js/ui/anim.js",
+ "./js/ui/app.js",
+ "./js/ui/avatar.js",
+ "./js/ui/batak-table.js",
+ "./js/ui/blackjack-table.js",
+ "./js/ui/blof-table.js",
+ "./js/ui/card-art.js",
+ "./js/ui/cards-util.js",
+ "./js/ui/chat.js",
+ "./js/ui/esek-table.js",
+ "./js/ui/fanti-table.js",
+ "./js/ui/gin-table.js",
+ "./js/ui/kahvehane.js",
+ "./js/ui/king-table.js",
+ "./js/ui/konken-table.js",
+ "./js/ui/logo.js",
+ "./js/ui/papaz-table.js",
+ "./js/ui/pisti-table.js",
+ "./js/ui/poker-table.js",
+ "./js/ui/sfx.js",
+ "./js/ui/table-kit.js",
+ "./js/ui/tutor.js",
+ "./js/ui/yanci.js",
+ "./js/ui/yanik-table.js",
+ "./assets/cards/C10.webp",
+ "./assets/cards/C11.webp",
+ "./assets/cards/C12.webp",
+ "./assets/cards/C13.webp",
+ "./assets/cards/C14.webp",
+ "./assets/cards/C2.webp",
+ "./assets/cards/C3.webp",
+ "./assets/cards/C4.webp",
+ "./assets/cards/C5.webp",
+ "./assets/cards/C6.webp",
+ "./assets/cards/C7.webp",
+ "./assets/cards/C8.webp",
+ "./assets/cards/C9.webp",
+ "./assets/cards/D10.webp",
+ "./assets/cards/D11.webp",
+ "./assets/cards/D12.webp",
+ "./assets/cards/D13.webp",
+ "./assets/cards/D14.webp",
+ "./assets/cards/D2.webp",
+ "./assets/cards/D3.webp",
+ "./assets/cards/D4.webp",
+ "./assets/cards/D5.webp",
+ "./assets/cards/D6.webp",
+ "./assets/cards/D7.webp",
+ "./assets/cards/D8.webp",
+ "./assets/cards/D9.webp",
+ "./assets/cards/H10.webp",
+ "./assets/cards/H11.webp",
+ "./assets/cards/H12.webp",
+ "./assets/cards/H13.webp",
+ "./assets/cards/H14.webp",
+ "./assets/cards/H2.webp",
+ "./assets/cards/H3.webp",
+ "./assets/cards/H4.webp",
+ "./assets/cards/H5.webp",
+ "./assets/cards/H6.webp",
+ "./assets/cards/H7.webp",
+ "./assets/cards/H8.webp",
+ "./assets/cards/H9.webp",
+ "./assets/cards/S10.webp",
+ "./assets/cards/S11.webp",
+ "./assets/cards/S12.webp",
+ "./assets/cards/S13.webp",
+ "./assets/cards/S14.webp",
+ "./assets/cards/S2.webp",
+ "./assets/cards/S3.webp",
+ "./assets/cards/S4.webp",
+ "./assets/cards/S5.webp",
+ "./assets/cards/S6.webp",
+ "./assets/cards/S7.webp",
+ "./assets/cards/S8.webp",
+ "./assets/cards/S9.webp",
+ "./assets/fonts/nunito-sans-latin-400-normal.woff2",
+ "./assets/fonts/nunito-sans-latin-600-normal.woff2",
+ "./assets/fonts/nunito-sans-latin-700-normal.woff2",
+ "./assets/fonts/nunito-sans-latin-800-normal.woff2",
+ "./assets/fonts/nunito-sans-latin-900-normal.woff2",
+ "./assets/fonts/nunito-sans-latin-ext-400-normal.woff2",
+ "./assets/fonts/nunito-sans-latin-ext-600-normal.woff2",
+ "./assets/fonts/nunito-sans-latin-ext-700-normal.woff2",
+ "./assets/fonts/nunito-sans-latin-ext-800-normal.woff2",
+ "./assets/fonts/nunito-sans-latin-ext-900-normal.woff2",
+ "./assets/fonts/roboto-slab-latin-700-normal.woff2",
+ "./assets/fonts/roboto-slab-latin-800-normal.woff2",
+ "./assets/fonts/roboto-slab-latin-ext-700-normal.woff2",
+ "./assets/fonts/roboto-slab-latin-ext-800-normal.woff2",
+ "./assets/icons/apple-touch-icon.png",
+ "./assets/icons/icon-192.png",
+ "./assets/icons/icon-512.png",
+ "./assets/icons/maskable-512.png"
+];
+
+self.addEventListener('install', (e) => {
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));
+});
+
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) => Promise.all(keys.filter((k) => k.startsWith('kahvehane-') && k !== CACHE).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim()),
+  );
+});
+
+// Önce önbellek (anında açılır); yoksa ağ. Yeni sürüm arka planda iner, bir sonraki açılışta devreye girer
+// (oyun ortasında sayfa yenilenmez).
+self.addEventListener('fetch', (e) => {
+  const req = e.request;
+  if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
+  e.respondWith(
+    caches.match(req, { ignoreSearch: true }).then((hit) => hit || fetch(req).then((res) => {
+      if (res.ok) {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put(req, copy));
+      }
+      return res;
+    }).catch(() => caches.match('./index.html'))),
+  );
+});
