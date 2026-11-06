@@ -1,8 +1,8 @@
 // Kahvehane karakterlerinin çizim portreleri (96×96 SVG). Fotoğraf değil, tip çizimi.
 // a1 Sezai: kel, yanlarda kısa saç, gür kara bıyık, ciddi bakış, lacivert ceket.
-// a2 Kartal: uzun kıvırcık kara saç, kalın sarkık bıyık, ince yüz, ciddi bakış, siyah tişört.
+// a2 Kartal: ense boyu gür kıvırcık kara saç, kalın sarkık bıyık, ince yüz, ciddi bakış, siyah tişört.
 // a3 Hilmi: geriye taranmış parlak kara saç, dolgun yüz, ciddi bakış, kürk yakalı palto.
-// a4 Şerif (yancı): kabarık bembeyaz saç, kocaman beyaz pala bıyık ve favori, ciddi bakış, haki kamuflaj ceket.
+// a4 Şerif (yancı): kabarık kıvırcık bembeyaz saç, kocaman beyaz pala bıyık ve favori, ciddi bakış, haki kamuflaj ceket.
 // Ortak iskelet face(); her karakter saçını, bıyığını, ağzını, giysisini kendisi verir.
 
 const uid = (() => {
@@ -48,6 +48,18 @@ function eyes({ y = 46, h = 3.2, iris = '#3a2416', lid = 0, dx = 0, squint = fal
   return one(48 - gap) + one(48 + gap);
 }
 
+
+/** Kıvırcık saç: her nokta bir bukle (daire + içinde kıvrım çizgisi) */
+function curls(pts, fill, line) {
+  return pts.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/>`).join('') +
+    pts.map(([x, y, r]) => `<path d="M${x - r * 0.55} ${y + r * 0.1} a${r * 0.5} ${r * 0.5} 0 1 1 ${r * 0.6} ${r * 0.45}" fill="none" stroke="${line}" stroke-width="${Math.max(0.8, r * 0.18)}" stroke-linecap="round"/>`).join('');
+}
+// başın çevresinde bukle halkası: merkez (cx,cy), yarıçap R, açı aralığı (derece), adet, bukle boyu
+const ring = (cx, cy, R, a0, a1, n, r) => Array.from({ length: n }, (_, k) => {
+  const a = ((a0 + ((a1 - a0) * k) / (n - 1)) * Math.PI) / 180;
+  return [+(cx + R * Math.cos(a)).toFixed(1), +(cy + R * Math.sin(a)).toFixed(1), r + ((k * 7) % 3) * 0.6];
+});
+
 const brow = (d, color, wd = 2.8) => `<path d="${d}" fill="none" stroke="${color}" stroke-width="${wd}" stroke-linecap="round"/>`;
 
 const LOOKS = {
@@ -74,16 +86,16 @@ const LOOKS = {
     const hair = '#171010';
     return face({
       skin, shade, bg1: '#3c6b5a', bg2: '#163028', jaw: -2,
-      // dağınık, ense boyu kıvırcık saç (örgü yok): arkada başın iki yanından enseye iner, alt ucu bukle bukle
-      back: `<path d="M23 48 C17 32 25 13 47 13 C69 12 79 31 73 48 C74 54 73 60 70 64 C68 61 67 62 65 64 C64 60 64 56 63 52 L33 52 C32 56 32 60 31 64 C29 62 28 61 26 64 C23 60 22 54 23 48 Z" fill="${hair}"/>` +
-        `<path d="M26 64 q2 -4 5 0 M65 64 q2 -4 5 0 M23 56 q3 -2 4 1 M69 56 q3 -2 4 1" stroke="#3a2a28" stroke-width="1.2" fill="none"/>`,
+      // ense boyu gür kıvırcık saç (örgü yok)
+      back: `<path d="M24 50 C18 32 26 14 47 14 C68 13 78 32 72 50 L70 64 L26 64 Z" fill="${hair}"/>` +
+        curls([...ring(48, 40, 25, 150, 390, 15, 5.2), [25, 58, 5], [71, 58, 5], [27, 65, 4.5], [69, 65, 4.5]], hair, '#3d2b27'),
       cloth: `<path d="M10 96 C12 80 26 73 40 72 Q48 78 56 72 C70 73 84 80 86 96 Z" fill="#1c1c1e"/><path d="M40 72 Q48 79 56 72" stroke="#2e2e30" stroke-width="2" fill="none"/>`,
       eyes: eyes({ y: 46.5, h: 2.6, iris: '#3b2414', gap: 8.5 }),
       brows: brow('M33 41 Q38 38.5 44 40.5', hair, 3.2) + brow('M52 40.5 Q58 38.5 63 41', hair, 3.2),
       mouth: `<path d="M33 60 C34 68 40 73 48 73.5 C56 73 62 68 63 60 C60 66 55 69 48 69.5 C41 69 36 66 33 60 Z" fill="#2a1d18" opacity=".22"/><path d="M43 64.5 Q48 63.5 53 64.5" stroke="#6b2f22" stroke-width="1.8" fill="none" stroke-linecap="round"/>` +
         `<path d="M48 57 C44 56 38 56.5 36.5 60 C35.5 63 35.5 67 36.2 70 C37.8 66 39 63 41.5 61.5 C44 60.5 46 61 48 61.6 C50 61 52 60.5 54.5 61.5 C57 63 58.2 66 59.8 70 C60.5 67 60.5 63 59.5 60 C58 56.5 52 56 48 57 Z" fill="${hair}"/>` +
         `<circle cx="60" cy="51" r=".9" fill="#5a3322"/>`,
-      front: `<path d="M27 46 C26 30 34 21 48 21 C62 21 70 30 69 46 C66 36 60 28 48 28.5 C42 29 37 31 34 35 C31 38 29 42 27 46 Z" fill="${hair}"/><path d="M34 26 C38 21 44 20 48 22 M53 21 C58 20 63 23 66 28" stroke="#3a2a28" stroke-width="1.4" fill="none"/><path d="M36 33 C35 29 38 26 41 26 C39 28 38 31 38 34 Z" fill="${hair}"/>`,
+      front: `<path d="M28 42 C27 27 36 19 48 19 C60 19 69 27 68 42 C64 33 56 29 48 29 C40 29 32 33 28 42 Z" fill="${hair}"/>` + curls([[31, 34, 4.6], [36, 28.5, 5], [43, 25.5, 5.2], [50, 25, 5], [57, 26.5, 5.2], [63, 30.5, 4.8], [67, 37, 4.2], [29.5, 41, 3.6]], hair, '#3d2b27'),
     });
   },
   // Hilmi
@@ -111,7 +123,8 @@ const LOOKS = {
     const whiteS = '#cfc9bf';
     return face({
       skin, shade, bg1: '#8a5a24', bg2: '#3e260c', jaw: 1, cheeks: false,
-      back: `<path d="M20 52 C12 40 16 18 34 12 C42 6 58 6 66 12 C82 18 86 40 76 52 C78 44 74 36 70 34 L26 34 C22 36 18 44 20 52 Z" fill="${white}"/><circle cx="22" cy="40" r="7" fill="${white}"/><circle cx="74" cy="40" r="7" fill="${white}"/><circle cx="30" cy="16" r="7" fill="${white}"/><circle cx="66" cy="16" r="7" fill="${white}"/><circle cx="48" cy="10" r="8" fill="${white}"/>`,
+      back: `<path d="M21 50 C14 32 24 12 48 12 C72 12 82 32 75 50 L26 50 Z" fill="${white}"/>` +
+        curls([...ring(48, 36, 27, 160, 380, 15, 6), [21, 48, 5.5], [75, 48, 5.5]], white, whiteS),
       cloth: `<path d="M8 96 C10 81 24 73 40 71 L48 79 L56 71 C72 73 86 81 88 96 Z" fill="#6f6a3e"/>` +
         `<path d="M16 88 q5 -4 9 0 q-4 4 -9 0z M30 82 q6 -3 9 1 q-5 3 -9 -1z M60 84 q5 -4 10 0 q-5 3 -10 0z M74 90 q5 -3 8 1 q-4 3 -8 -1z M22 94 q4 -2 7 1 M66 94 q4 -3 8 0" fill="#4e4a2a" stroke="#4e4a2a" stroke-width="1"/>` +
         `<path d="M41 71 L48 79 L55 71 L52 70 L48 74 L44 70 Z" fill="#2c5a73"/><path d="M44 72 l4 3 l4 -3" stroke="#e8e0c8" stroke-width=".8" fill="none"/>`,
@@ -121,8 +134,8 @@ const LOOKS = {
       mouth: `<path d="M44 67 Q48 66.4 52 67" stroke="#6b2a1e" stroke-width="1.6" fill="none" stroke-linecap="round"/>` +
         `<path d="M48 58.5 C43 57 37 57.5 33 61 C29 64.5 27 70 28.5 76 C30 72 32 68.5 36 66.5 C40 64.5 44 64 48 63.5 C52 64 56 64.5 60 66.5 C64 68.5 66 72 67.5 76 C69 70 67 64.5 63 61 C59 57.5 53 57 48 58.5 Z" fill="${white}"/>` +
         `<path d="M34 63 C38 61 43 61 47 62 M62 63 C58 61 53 61 49 62" stroke="${whiteS}" stroke-width="1" fill="none"/>`,
-      front: `<path d="M26 40 C24 50 25 60 29 66 C30.5 60 30 52 30 44 Z M70 40 C72 50 71 60 67 66 C65.5 60 66 52 66 44 Z" fill="${white}"/>` +
-        `<path d="M30 28 C36 22 44 22 49 25 C54 21 61 22 66 28 C60 26 55 26.5 49 29 C43 26.5 36 26 30 28 Z" fill="${white}"/>`,
+      front: `<path d="M26 42 C24 50 25 60 29 66 C30.5 60 30 52 30 46 Z M70 42 C72 50 71 60 67 66 C65.5 60 66 52 66 46 Z" fill="${white}"/>` +
+        curls([[31, 30, 4.6], [37, 25.5, 5], [44, 23.5, 5], [51, 23.5, 5], [58, 25, 5], [64, 29, 4.6], [27.5, 37, 4], [68.5, 37, 4]], white, whiteS),
     });
   },
 };

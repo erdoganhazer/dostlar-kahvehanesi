@@ -232,3 +232,4 @@ Kural (SERVIS-MANUELI): masadaki öğeler içerik değişince yükseklik değiş
 - Kazanınca neşeli ses (`sfx.win`: do-mi-sol-do arpej + akor). Kumarhane oyunlarında 1000'den fazla çiple bitirince de çalar.
 - Ana menü: "kâğıt oyunları" yerine "Hazer Erdoğan"; alttaki "dev. Hazer Erdoğan" kaldırıldı.
 - Kullanıcı: gülmeden baksınlar, gözler açık → dört portre ciddi bakışlı, gözler açık, ağız düz; yanak pembesi kaldırıldı.
+- Kullanıcı: Kartal ve Şerif'in saçı kıvırcık olsun → portraits.js curls()/ring(): saç bukle bukle (daire + kıvrım çizgisi).
