@@ -6,6 +6,7 @@ import { defaultMoveKey } from '../core/game-api.js';
 import { kingWinProb, kingCardPen, GAME_NAMES, SUIT_TR } from '../games/king.js';
 import { estimateTricks, beats as batakBeats } from '../games/batak.js';
 import { value as bjValue } from '../games/blackjack.js';
+import { evalHand as u3Eval, CAT as U3CAT } from '../games/ucpoker.js';
 import { equity as pokerEquity } from '../games/poker.js';
 import { lieProb } from '../games/blof.js';
 import { captureOf } from '../games/fanti.js';
@@ -35,11 +36,39 @@ const LABEL = {
   altmisalti: (v, m) => (m.t === 'close' ? 'Desteyi kapat' : m.t === 'swap9' ? 'Koz 9 ile açık kozu değiştir' : `${cardText(m.c)} oyna`),
   yanik: (v, m) => ({ rebuy: `Tekrar gir (${v.entry ? v.entry[v.seat] * 2 : ''})`, quit: 'Çekil', draw: m.from === 'deck' ? 'Desteden çek' : `Yandan ${v.pileTop ? cardText(v.pileTop) : 'kart'} al`, open: m.mode === 'cift' ? 'Çift aç' : 'Yere aç (per)', lay: 'Yeni per aç', add: `${m.c ? cardText(m.c) : ''} işle`, swap: `${m.c ? cardText(m.c) : ''} koyup jokeri al`, discard: `${m.c ? cardText(m.c) : ''} at` }[m.t]),
   gin: (v, m) => ({ take: `Açık kartı al (${v.pileTop ? cardText(v.pileTop) : ''})`, pass: 'Pas de', draw: m.from === 'deck' ? 'Desteden çek' : `Yerden al (${v.pileTop ? cardText(v.pileTop) : ''})`, discard: `${m.c ? cardText(m.c) : ''} at`, knock: `${m.c ? cardText(m.c) : ''} atıp kapı de` }[m.t]),
+  bakara: (v, m) => `${{ p: 'Oyuncu eline', b: 'Kasa eline', t: 'Beraberliğe' }[m.on]} ${m.v} koy`,
+  ucpoker: (v, m) => ({ bet: `${m.v} ante koy`, play: 'Oyna', fold: 'Çekil' }[m.t]),
+  savas: (v, m) => ({ bet: `${m.v} koy`, war: 'Savaş', surrender: 'Teslim ol' }[m.t]),
+  atyarisi: (v, m) => `${SUIT_NAME_TR[m.suit]} atına ${m.v} oyna`,
+  kilic: (v, m) => (m.t === 'bet' ? `${m.v} çipine oyna` : `${cardText(m.c)} de`),
   konken: (v, m) => (m.t === 'draw' ? (m.from === 'deck' ? 'Desteden çek' : `Yerden ${cardText(v.pileTop)} al`) : `${cardText(m.c)} at`),
 };
 
 // ---- Neden? ----
 const EXPLAIN = {
+  bakara(v, m) {
+    if (m.on === 't') return 'Beraberlik 8 kat öder ama nadir çıkar; uzun vadede kasa kazanır.';
+    return m.on === 'b' ? 'Kasa eli biraz daha sık kazanır; %5 komisyona rağmen en iyi bahis bu.' : 'Oyuncu eli de iyi bahis; komisyon yok.';
+  },
+  ucpoker(v, m) {
+    if (m.t === 'bet') return 'Ante küçük olsun; oynarsan bir o kadar daha koyacaksın.';
+    const e = u3Eval(v.hands[v.seat]);
+    const name = U3CAT[e[0]].toLocaleLowerCase('tr');
+    return m.t === 'play' ? (e[0] > 0 ? `Elinde ${name} var, oyna.` : 'Kız-6-4 ya da daha iyisi: oynamaya değer.') : 'Kızdan küçük yüksek kart: çekil, ante gitsin, fazlası gitmesin.';
+  },
+  savas(v, m) {
+    if (m.t === 'bet') return 'Şans oyunu; bahsi küçük tut.';
+    return m.t === 'war' ? 'Savaşta eşit kart da senin lehine; teslim olmaktan iyidir.' : 'Savaşacak çipin yok, teslim ol.';
+  },
+  atyarisi(v, m) {
+    const taken = v.bets.filter((b) => b && b.suit === m.suit).length;
+    return `Dört atın şansı eşit; hangisini seçsen olur. Bahsi küçük tut, kazanırsan ${m.v * 3} gelir.${taken ? '' : ' Bu ata henüz kimse oynamadı.'}`;
+  },
+  kilic(v, m) {
+    if (m.t === 'name') return 'Hangi kartı söylesen şansın yarı yarıya; içinden geleni söyle.';
+    const lead = v.chips[v.seat] - v.chips[1 - v.seat];
+    return lead > 0 ? 'Öndesin; küçük oyna, kazancını koru.' : lead < 0 ? 'Gerideyiz; biraz açılmak lazım ama hepsini basma.' : 'Şans oyunu bu; bahsi küçük tut.';
+  },
   king(v, m) {
     if (m.t === 'ann') return m.g === 'koz' ? `Elinde ${SUIT_TR[m.trump].toLowerCase()} uzun ve büyük; koz bu renk olursa çok el alırsın.` : 'Elinle bu ceza oyununda en az puan kaybedersin.';
     const p = kingWinProb(v, m.c);

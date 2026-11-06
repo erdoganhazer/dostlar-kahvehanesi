@@ -1,5 +1,5 @@
 // Genel ayarlar (oyuncu adı, hız çarpanı). Bot ayarları roster.js'te.
-export const DEFAULT_SETTINGS = { humanName: 'Oyuncu', humanAvatar: 'a5', humanPhoto: '', paceMult: 1, kingEnds: true, pistiPlayers: 2, papazPlayers: 4, esekPlayers: 4, blackjackPlayers: 3, blofPlayers: 4, pokerPlayers: 4, fantiPlayers: 2, konkenPlayers: 4, yanikPlayers: 4, konkenScoring: 'ceza', konkenJoker: true, konkenCifte: true, tutor: true, chat: true, turnLimit: 30, cardStyle: 'buyuk', fourColor: false, backStyle: 'ks', backPhoto: '', cafe: true, myDrink: 'cay', wallet: 1000, yanciMode: 'sohbet', yanciName: 'Şerif', yanciAvatar: 'a4', yanciPhoto: '', sound: true, soundVol: 0.7, anger: true, solDraw: 1, spiderSuits: 1 };
+export const DEFAULT_SETTINGS = { humanName: 'Oyuncu', humanAvatar: 'a5', humanPhoto: '', paceMult: 1, kingEnds: true, pistiPlayers: 2, papazPlayers: 4, esekPlayers: 4, blackjackPlayers: 3, blofPlayers: 4, pokerPlayers: 4, fantiPlayers: 2, konkenPlayers: 4, yanikPlayers: 4, konkenScoring: 'ceza', konkenJoker: true, konkenCifte: true, tutor: true, chat: true, turnLimit: 30, cardStyle: 'buyuk', fourColor: false, backStyle: 'ks', backPhoto: '', cafe: true, myDrink: 'cay', wallet: 1000, yanciMode: 'sohbet', yanciName: 'Şerif', yanciAvatar: 'a4', yanciPhoto: '', sound: true, soundVol: 0.7, anger: true, solDraw: 1, spiderSuits: 1, atyarisiPlayers: 4, bakaraPlayers: 3, ucpokerPlayers: 3, savasPlayers: 3 };
 export const PACE_OPTIONS = [
   { v: 0.5, label: 'Hızlı' },
   { v: 1, label: 'Normal' },
@@ -46,6 +46,8 @@ export class Settings {
     if (k === 'cardStyle') v = v === 'klasik' ? 'klasik' : 'buyuk';
     if (k === 'turnLimit') v = [0, 15, 30].includes(+v) ? +v : 30;
     if (k === 'kingEnds') v = !!v;
+    if (k === 'atyarisiPlayers') v = [2, 3, 4].includes(+v) ? +v : 4;
+    if (k === 'bakaraPlayers' || k === 'ucpokerPlayers' || k === 'savasPlayers') v = [1, 2, 3, 4].includes(+v) ? +v : 3;
     if (k === 'solDraw') v = +v === 3 ? 3 : 1;
     if (k === 'spiderSuits') v = [1, 2, 4].includes(+v) ? +v : 1;
     this.data[k] = v;

@@ -23,6 +23,11 @@ import yanik, { meldFrom, addSpot as yAdd, swapSpot as ySwap, pairsOf } from '..
 import batak, { trickWinner as batakWinner } from '../js/games/batak.js';
 import king, { PENALTIES, suitOf } from '../js/games/king.js';
 import solitaire from '../js/games/solitaire.js';
+import kilic from '../js/games/kilic.js';
+import atyarisi, { race } from '../js/games/atyarisi.js';
+import bakara, { coup, bankerDraws, payout as bkPay } from '../js/games/bakara.js';
+import ucpoker, { evalHand as u3Eval, cmp as u3Cmp, shouldPlay } from '../js/games/ucpoker.js';
+import savas from '../js/games/savas.js';
 import golf from '../js/games/golf.js';
 import freecell from '../js/games/freecell.js';
 import spider from '../js/games/spider.js';
@@ -674,6 +679,82 @@ await test('Spider: 1/2/4 renk, dağıtım, tamamlanan dizi kalkar', async () =>
   let wins = 0;
   for (let seed = 1; seed <= 8; seed++) if (solPlay(spider, seed, { suits: 1 }).won) wins++;
   assert.ok(wins >= 1);
+});
+
+
+// ---- Kumarhane ----
+await test('Kumarhane: Kılıç, At Yarışı, Bakara, Üç Kart Poker, Casino Savaşı bot maçları biter', async () => {
+  for (const [g, ns] of [[kilic, [2]], [atyarisi, [2, 4]], [bakara, [1, 3, 4]], [ucpoker, [1, 4]], [savas, [1, 4]]]) {
+    for (const n of ns) for (const seed of [1, 7]) {
+      const r = await new Table({ game: g, seats: botSeats(n), rng: makeRng(seed), config: { players: n, seed } }).play();
+      assert.ok(g.isOver(r.state), g.id);
+      assert.ok(r.scores.every((c) => c >= 0), `${g.id} eksi çip`);
+    }
+  }
+});
+
+await test('Kılıç: söylenen kart kimin önüne düşerse', async () => {
+  let s = kilic.createInitialState({ seed: 3 });
+  const deck = s.deck;
+  s = kilic.applyMove(s, 0, { t: 'bet', v: 100 });
+  const a = kilic.applyMove(s, 0, { t: 'name', c: deck[4] }); // 5. kart: söyleyenin önüne (0,2,4)
+  assert.equal(a.roundEnd.winner, 0);
+  assert.deepEqual(a.chips, [1100, 900]);
+  const b = kilic.applyMove(s, 0, { t: 'name', c: deck[3] });
+  assert.equal(b.roundEnd.winner, 1);
+  assert.equal(b.roundEnd.seq.length, 4);
+  assert.equal(a.chooser, 1); // sıradaki eli rakip söyler
+});
+
+await test('At Yarışı: 13 kartı ilk tamamlayan at, 3 kat ödeme', async () => {
+  const deck = ['S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12', 'S13', 'H2', 'S14'];
+  const r = race(deck);
+  assert.equal(r.winner, 'S');
+  assert.equal(r.seq.length, 14);
+  let s = atyarisi.createInitialState({ players: 2, seed: 5 });
+  const w = race(s.deck).winner;
+  const other = ['S', 'H', 'D', 'C'].find((x) => x !== w);
+  s = atyarisi.applyMove(s, 0, { t: 'bet', suit: w, v: 100 });
+  s = atyarisi.applyMove(s, 1, { t: 'bet', suit: other, v: 50 });
+  assert.deepEqual(s.roundEnd.chips, [1300, 950]);
+});
+
+await test('Bakara: üçüncü kart tablosu ve ödemeler', async () => {
+  assert.equal(bankerDraws(3, 'S8'), false);
+  assert.equal(bankerDraws(3, 'S9'), true);
+  assert.equal(bankerDraws(6, 'H7'), true);
+  assert.equal(bankerDraws(6, null), false);
+  assert.equal(bankerDraws(5, null), true);
+  // natürel: kimse çekmez
+  const n = coup(['S9', 'H2', 'D13', 'C3', 'S5', 'S6']);
+  assert.equal(n.seq.length, 4);
+  assert.equal(n.winner, 'p');
+  // oyuncu 0-5 çeker
+  const d = coup(['S2', 'H6', 'D3', 'C13', 'S4', 'S6']);
+  assert.equal(d.p.length, 3);
+  assert.equal(bkPay({ on: 'b', v: 100 }, 'b'), 95);
+  assert.equal(bkPay({ on: 'p', v: 100 }, 't'), 0);
+  assert.equal(bkPay({ on: 't', v: 50 }, 't'), 400);
+});
+
+await test('Üç Kart Poker: el sırası, kasanın açması, kız-6-4', async () => {
+  assert.ok(u3Cmp(u3Eval(['S3', 'H4', 'D5']), u3Eval(['S2', 'S7', 'S9'])) > 0); // seri > renk
+  assert.ok(u3Cmp(u3Eval(['S14', 'H2', 'D3']), u3Eval(['S2', 'H3', 'D4'])) < 0); // A-2-3 en küçük seri
+  assert.ok(u3Cmp(u3Eval(['S5', 'H5', 'D5']), u3Eval(['S12', 'S13', 'S14'])) < 0);
+  assert.ok(shouldPlay(['S12', 'H6', 'D4']) && !shouldPlay(['S12', 'H6', 'D3']) && shouldPlay(['S2', 'H2', 'D3']));
+});
+
+await test('Casino Savaşı: eşitlikte savaş ve teslim', async () => {
+  let s = savas.createInitialState({ players: 1, seed: 1 });
+  // eşitlik kur: destede ilk iki kart aynı sayı
+  s = { ...s, deck: ['S9', 'H9', 'C2', 'C3', 'C4', 'D10', 'H5', ...s.deck.filter((c) => !['S9', 'H9', 'C2', 'C3', 'C4', 'D10', 'H5'].includes(c))] };
+  s = savas.applyMove(s, 0, { t: 'bet', v: 100 });
+  assert.equal(s.phase, 'tie');
+  const w = savas.applyMove(s, 0, { t: 'war' });
+  assert.equal(w.roundEnd.res[0], 'warwin');
+  assert.equal(w.roundEnd.chips[0], 1100);
+  const q = savas.applyMove(s, 0, { t: 'surrender' });
+  assert.equal(q.roundEnd.chips[0], 950);
 });
 
 console.log(results.join('\n'));

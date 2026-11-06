@@ -39,7 +39,7 @@ Pişti (referans oyun) isteğe bağlı olarak başa eklenebilir.
 5. Per açma ailesi (Yanık, Fanti, Konken), elden atma ailesi (Papaz Kaçtı, Eşek)
 6. PWA kabuğu (tamam, v1.6; GitHub Pages).
 7. Tek kişilik oyunlar (tamam, v1.8).
-8. Kumarhane: Bakara, Üç Kart Poker, Casino Savaşı, At Yarışı (kurallar kullanıcıdan); Kılıç, Türk Pokeri, Kart Barbutu kural bekliyor.
+8. Kumarhane ve Kılıç (tamam, v1.9): Kılıç, At Yarışı, Bakara, Üç Kart Poker, Casino Savaşı. Türk Pokeri ve Kart Barbutu iptal.
 
 ## Kapsam dışı (şimdilik)
 Çevrimiçi çok oyunculu, hesap/giriş, gerçek para.

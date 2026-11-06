@@ -6,7 +6,7 @@
 //   reset(ctx)?, onStart(ctx)? async (açılış dağıtımı), onTurn(ctx)?, onMove(e, ctx, before)? async (koreografi),
 //   render(ctx) -> Node[]  (STATİK çizim; CSS animasyonu yok),
 //   endHead(winners, ctx, res)?, fmtScore(score, seat, ctx)?, maxThink?,
-//   solo? (tek kişilik: süre yok, sıra sesi yok, yancı her hamleyi yorumlamaz)
+//   solo? (tek kişilik: süre yok, sıra sesi yok, yancı her hamleyi yorumlamaz), chance? (şans oyunu: yancı hamleni eleştirmez)
 // }
 import { Table } from '../core/engine.js';
 import { makeRng } from '../core/rng.js';
@@ -738,7 +738,7 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
         if (e.seat === 0 && seats[0]?.kind === 'human' && advice) {
           lastReview = timedOut ? { good: false, text: `Süren bitti; önerilen hamle oynandı: ${advice.label}.`, timeout: true } : review(advice, e.move);
           if (lastReview) lastReview.better = advice.label;
-          if (lastReview && !timedOut && !spec.solo) yanci.afterMine({ good: lastReview.good, betterLabel: advice.label });
+          if (lastReview && !timedOut && !spec.solo && !spec.chance && e.move.t !== 'bet') yanci.afterMine({ good: lastReview.good, betterLabel: advice.label });
           if (!tutorOn() && !timedOut) lastReview = null;
           advice = null;
         }

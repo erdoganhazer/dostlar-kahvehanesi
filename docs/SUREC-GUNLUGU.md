@@ -215,3 +215,10 @@ Kural (SERVIS-MANUELI): masadaki öğeler içerik değişince yükseklik değiş
 - Yancı Şerif burada da: resmine dokununca "Kupa As'ı temele çıkar" gibi ipucu (kart adları ekleriyle). Tek kişilikte her hamleyi yorumlamaz, süre ve sıra sesi yok.
 - İpucu kalitesi: ipucuyla oynanınca Klondike ~%27, FreeCell ~%55, Spider (tek renk) ~%40 kazanılıyor; gidip gelme önerisi engellendi.
 - Testler: 44/44 (4 yeni: kart korunumu, geri al, kurallar, kazanma).
+
+## v1.9 — Kılıç ve kumarhane (istek listesi, 3. aşama)
+- Kullanıcı: Türk Pokeri ve Kart Barbutu'nun kurallarını bilmiyor → iptal, menüden kalktı. Kılıç'ın kuralı araştırıldı (iskambilci.com, iskambill.com, ekşi): tam kart söylenir, 2 kişi (kullanıcı seçti).
+- Eklendi: Kılıç (kahvehane), At Yarışı, Bakara, Üç Kart Poker, Casino Savaşı (kumarhane). Kurallar ve kaynaklar docs/KUMARHANE-KURALLARI.md.
+- Hepsi 1000 çip, 10 el, bahis 50/100/200. Kartlar desteden açılarak uçar; At Yarışı'nda dört kulvar, Kılıç'ta iki yığın ve söylenen kart, Bakara'da iki el, Üç Kart Poker ve Savaş'ta Blackjack gibi satırlar.
+- Şerif'e dokununca: şans oyunlarında "hepsinin şansı eşit, bahsi küçük tut"; Bakara'da kasa eli; Üç Kart Poker'de kız-6-4 kuralı; Savaş'ta her zaman savaş. Bahis miktarı için hamleni eleştirmez; şans oyunlarında hiç eleştirmez.
+- Testler: 50/50.

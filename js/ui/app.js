@@ -23,6 +23,11 @@ import { createKonkenScreen } from './konken-table.js';
 import { createGinScreen } from './gin-table.js';
 import { createAltmisaltiScreen } from './altmisalti-table.js';
 import { createYanikScreen } from './yanik-table.js';
+import { createKilicScreen } from './kilic-table.js';
+import { createAtyarisiScreen } from './atyarisi-table.js';
+import { createBakaraScreen } from './bakara-table.js';
+import { createUcpokerScreen } from './ucpoker-table.js';
+import { createSavasScreen } from './savas-table.js';
 import { createSolitaireScreen, createGolfScreen, createFreecellScreen, createSpiderScreen } from './sol-games.js';
 
 // Kart resimlerini baştan yükle: boş kart görünmesin
@@ -438,7 +443,7 @@ function openSettings(onClose) {
 const matchDeps = () => ({ h, shell, avatarNode, cardEl, counter, roster, settings, go, dialog, openSettings });
 const mk = (fn) => () => { const k = fn(matchDeps()); cleanup = k.destroy; return k.el; };
 const routes = { menu: screenMenu, ayarlar: screenSettings, hakkinda: screenAbout, king: screenKing,
-  pisti: mk(createPistiScreen), papazkacti: mk(createPapazScreen), esek: mk(createEsekScreen), batak: mk(createBatakScreen), blackjack: mk(createBlackjackScreen), blof: mk(createBlofScreen), teksas: mk(createPokerScreen), fanti: mk(createFantiScreen), konken: mk(createKonkenScreen), gin: mk(createGinScreen), altmisalti: mk(createAltmisaltiScreen), yanik: mk(createYanikScreen), solitaire: mk(createSolitaireScreen), golf: mk(createGolfScreen), freecell: mk(createFreecellScreen), spider: mk(createSpiderScreen) };
+  pisti: mk(createPistiScreen), papazkacti: mk(createPapazScreen), esek: mk(createEsekScreen), batak: mk(createBatakScreen), blackjack: mk(createBlackjackScreen), blof: mk(createBlofScreen), teksas: mk(createPokerScreen), fanti: mk(createFantiScreen), konken: mk(createKonkenScreen), gin: mk(createGinScreen), altmisalti: mk(createAltmisaltiScreen), yanik: mk(createYanikScreen), solitaire: mk(createSolitaireScreen), golf: mk(createGolfScreen), freecell: mk(createFreecellScreen), spider: mk(createSpiderScreen), kilic: mk(createKilicScreen), atyarisi: mk(createAtyarisiScreen), bakara: mk(createBakaraScreen), ucpoker: mk(createUcpokerScreen), savas: mk(createSavasScreen) };
 function current() {
   const r = location.hash.replace('#', '');
   return routes[r] ? r : 'menu';

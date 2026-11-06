@@ -689,4 +689,49 @@ table.sheet th, table.sheet td { border: 1px solid #d8c8a4; }
 .solc .card.face .fr.two { font-size: 34cqw; transform-origin: 0 50%; margin-right: -7cqw; }
 .solc .card.face .fs { width: 24cqw; height: 24cqw; margin-top: 0; }
 
+/* ---- Kılıç ---- */
+.center.kilic .kilicnamed { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; z-index: 30; }
+.kilicnamed .card { --card-w: var(--tc-w); --card-h: var(--tc-h); width: var(--tc-w); height: var(--tc-h); display: block; box-shadow: 1px 2px 4px rgba(0,0,0,.45); }
+.kilicnamed.hit .card { box-shadow: 0 0 0 3px var(--gold, #e8c15a), 1px 2px 6px rgba(0,0,0,.5); }
+.kpick .ksuits { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 6px; }
+.kpick .kranks { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 6px; }
+.kpick .btn { padding: 7px 0; min-width: 0; font-weight: 700; }
+.kpick .btn.red { color: #b3001b; }
+.kpick .btn.on { box-shadow: 0 0 0 2px var(--gold, #e8c15a); }
+
+/* ---- At Yarışı ---- */
+.center.race { display: flex; flex-direction: column; gap: 6px; padding: 8px 8px 10px; --rw: 34px; --rh: 48px; }
+.center.race .rtop { display: flex; align-items: center; gap: 10px; min-height: var(--tc-h); }
+.center.race .deck { position: relative; left: auto; top: auto; margin: 0 0 14px 4px; flex: none; }
+.center.race .rmsg { flex: 1; font-weight: 700; text-align: center; font-size: 15px; }
+.lanes { display: flex; flex-direction: column; gap: 6px; flex: 1; justify-content: center; }
+.lane { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,.14); border-radius: 8px; padding: 5px 10px 5px 6px; }
+.lane.won { box-shadow: 0 0 0 2px var(--gold, #e8c15a); background: rgba(232,193,90,.12); }
+.lhead { width: 46px; flex: none; display: flex; flex-direction: column; align-items: center; font-size: 10px; line-height: 1.15; }
+.lsym { font-size: 20px; line-height: 1; } .lane.red .lsym { color: #ff6b6b; }
+.lwho { max-width: 46px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: .9; }
+.track { position: relative; flex: 1; height: var(--rh); }
+.rc2 { position: absolute; top: 0; width: var(--rw); height: var(--rh); }
+.rc2 .card { --card-w: var(--rw); --card-h: var(--rh); width: var(--rw); height: var(--rh); display: block; box-shadow: 1px 1px 3px rgba(0,0,0,.45); }
+.track .finish { position: absolute; right: -6px; top: -3px; bottom: -3px; width: 3px; background: repeating-linear-gradient(#fff 0 4px, #222 4px 8px); opacity: .75; }
+@media (orientation: landscape) and (min-aspect-ratio: 5/4) { .center.race { --rw: 42px; --rh: 59px; } }
+
+/* ---- Bakara, Üç Kart Poker, Casino Savaşı ---- */
+.bkmsg { text-align: center; font-weight: 700; font-size: 14px; min-height: 18px; }
+.bkhands { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.bkside { background: rgba(0,0,0,.14); border-radius: 8px; padding: 6px; display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 88px; }
+.bkside.won { box-shadow: 0 0 0 2px var(--gold, #e8c15a); }
+.bkl { font-size: 12px; display: flex; gap: 6px; align-items: baseline; } .bkl b { font-size: 18px; }
+.bkside .bjc .card { --card-w: 44px; --card-h: 62px; width: 44px; height: 62px; }
+.bkbets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; font-size: 11px; text-align: center; }
+.bkb { background: rgba(0,0,0,.12); border-radius: 6px; padding: 4px; display: flex; flex-direction: column; }
+.bkb.won { box-shadow: 0 0 0 2px var(--gold, #e8c15a); }
+.bkb span { opacity: .9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kpick .ksuits.three { grid-template-columns: repeat(3, 1fr); }
+
+.bjarea { padding-left: calc(var(--tc-w) + 14px); }
+.center.bkarea { padding: 8px; justify-content: center; gap: 8px; }
+.center.bkarea .deck { top: 10px; margin-top: 0; left: 10px; }
+.center.bkarea .bkmsg { padding-left: calc(var(--tc-w) + 14px); }
+
 .pend, .kc.pend, .pc.pend { visibility: hidden !important; }

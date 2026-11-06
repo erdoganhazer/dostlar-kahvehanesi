@@ -136,3 +136,10 @@ Fotoğraf sınırı: 60 KB (validPhoto).
 - Animasyon: hamle öncesi `.solc` konumları ölçülür → yeni durum çizilir → kayan kart WAAPI ile eski yerinden (FLIP; yüz değişirse yolda scaleX), yerinde açılan kart `A.flipInPlace`. Spider'da tamamlanan dizi önce sütunda görünür (`opt.mid`), sonra kalkar.
 - İpucu metinleri `js/ui/sol-tutor.js` (tutor.js LABEL/EXPLAIN'e eklenir): belirtme/ilgi ekleri rakamın okunuşuna göre ("Maça 3'ü", "Kupa 6'nın").
 - Ayarlar: `solDraw` (1|3), `spiderSuits` (1|2|4); oyun menüsünden değişir.
+## v1.9 — Kılıç ve kumarhane oyunları
+- `js/games/casino-common.js`: `BETS`, `START_CHIPS`, `ROUNDS`, `deckFor(seed, round)`, `betMoves`, `rateBet(v, ctx)` (risk iştahına göre hedef miktar). Motorlar: `kilic.js`, `atyarisi.js` (`race(deck)`), `bakara.js` (`coup`, `bankerDraws`, `payout`), `ucpoker.js` (`evalHand`, `cmp`, `qualifies`, `shouldPlay`), `savas.js`.
+- El sonu olayı `roundEnd` (tüm açılan kartlar ve sonuç), dağıtım olayı `dealLog` (Üç Kart Poker, Savaş). Ekran `disp` ile eli adım adım oynatır, sonra `null`.
+- `js/ui/kasa-kit.js`: `cardRow` (kapalı kart kimliği `x:<kim>:<sıra>`), `dealIn`, `dealAll`, `turnUp`, `collect`, `betPanel`, `money`. Blackjack satır sınıfları (`.bjrow/.bjc`) kullanılır.
+- table-kit: `spec.chance` (şans oyunu: yancı hamleyi eleştirmez); bahis hamlesi (`t:'bet'`) hiçbir oyunda eleştirilmez.
+- Ayarlar: `atyarisiPlayers` (2–4), `bakaraPlayers`, `ucpokerPlayers`, `savasPlayers` (1–4); oyun açılırken sorulur.
+- Menü kimliği `savas` (eski 'casinosavasi'); `turkpoker`, `barbut` kaldırıldı.
