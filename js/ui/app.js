@@ -183,7 +183,8 @@ function screenMenu() {
       brand(),
       h('h2', {}, `Hoş geldin, ${settings.get('humanName')}`),
       GROUPS.flatMap(([gid, title]) => {
-        const list = GAMES.filter((g) => g.group === gid && g.status === 'ready') // yapılacaklar menüde görünmez (docs/HEDEF.md).sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+        // yapılacaklar (status 'soon') menüde görünmez (docs/HEDEF.md)
+        const list = GAMES.filter((g) => g.group === gid && g.status === 'ready').sort((a, b) => a.name.localeCompare(b.name, 'tr'));
         return list.length ? [h('div', { class: 'sec' }, title), h('div', { class: 'tiles' }, list.map((g, k) => tile(g, k)))] : [];
       }),
       installPrompt && !standalone()

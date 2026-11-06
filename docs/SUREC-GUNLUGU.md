@@ -236,3 +236,4 @@ Kural (SERVIS-MANUELI): masadaki öğeler içerik değişince yükseklik değiş
 - Kullanıcı: Hilmi fotoğrafa biraz daha benzesin → geniş dolgun yüz, iri burun, ağır göz kapakları, kalın kaşlar, geriye taranmış parlak saç, kabarık kahverengi kürk yaka, kırmızı çizgili gömlek, açık gri zemin.
 - Kullanıcı kendi çizimlerini verdi ("telife girmiyor"): dört yüz kırpılıp assets/avatars/a1–a4.webp (256 px, beyaz zemin renkli zemine çevrildi). a1 Sezai, a2 Kartal, a3 Hilmi, a4 Şerif. Benim çizdiğim portraits.js kaldırıldı.
 - Ana menüdeki "3 oyuncu hazır. Aynı oyuncular tüm oyunlarda oturur." yazısı kaldırıldı.
+- Hata: v1.9.1'de eklenen satır içi yorum menü sıralamasını kapatmıştı → düzeltildi, gruplar yine alfabetik.
