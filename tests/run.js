@@ -22,6 +22,10 @@ import gin, { solve as gSolve, defend as gDefend } from '../js/games/gin.js';
 import yanik, { meldFrom, addSpot as yAdd, swapSpot as ySwap, pairsOf } from '../js/games/yanik.js';
 import batak, { trickWinner as batakWinner } from '../js/games/batak.js';
 import king, { PENALTIES, suitOf } from '../js/games/king.js';
+import solitaire from '../js/games/solitaire.js';
+import golf from '../js/games/golf.js';
+import freecell from '../js/games/freecell.js';
+import spider from '../js/games/spider.js';
 
 let passed = 0;
 const results = [];
@@ -568,6 +572,108 @@ await test('Gin Rummy: per bulucu, işleme, puan ve maç sonu', async () => {
     assert.equal(st.final[st.winner], Math.max(...st.final));
     assert.ok(st.sheet.length > 1);
   }
+});
+
+
+// ---- Tek kişilik oyunlar ----
+const allCards = (s) => {
+  const out = [];
+  const add = (x) => (x == null ? 0 : Array.isArray(x) ? x.forEach(add) : typeof x === 'object' ? add(x.c) : out.push(x));
+  [s.t, s.f, s.s, s.w, s.c].forEach(add);
+  return out;
+};
+/** İpucuyla (rateMove) oynar, ara sıra geri alır; kart kaybolmamalı, çift olmamalı, motor yasal hamle dışına çıkmamalı. */
+function solPlay(g, seed, cfg = {}) {
+  const rng = makeRng(seed);
+  let s = g.createInitialState(cfg, rng);
+  const n0 = allCards(s).length;
+  const seen = new Map();
+  for (let i = 0; i < 2500 && !g.isOver(s); i++) {
+    const mv = g.legalMoves(s, 0);
+    const v = g.viewFor(s, 0);
+    const key = JSON.stringify([s.t, s.w, s.c, (s.f || []).length]);
+    const k = (seen.get(key) || 0) + 1;
+    seen.set(key, k);
+    let m = mv.reduce((a, b) => (g.rateMove(v, b) - (k > 2 ? rng() * 30 : 0) > g.rateMove(v, a) ? b : a));
+    if (i % 37 === 36 && mv.some((x) => x.t === 'undo')) m = { t: 'undo' };
+    if (k > 6) m = { t: 'resign' };
+    assert.ok(mv.some((x) => g.moveKey(x) === g.moveKey(m)), 'yasal hamle');
+    s = g.applyMove(s, 0, m);
+    const ids = allCards(s);
+    assert.equal(ids.length, n0);
+    assert.equal(new Set(ids).size, n0);
+  }
+  return s;
+}
+
+await test('Solitaire (Klondike): dağıtım, kart korunumu, geri al, kazanma', async () => {
+  const s0 = solitaire.createInitialState({ draw: 1 }, makeRng(5));
+  assert.deepEqual(s0.t.map((c) => c.length), [1, 2, 3, 4, 5, 6, 7]);
+  assert.ok(s0.t.every((c) => c.filter((x) => x.up).length === 1));
+  assert.equal(s0.s.length, 24);
+  let wins = 0;
+  for (let seed = 1; seed <= 12; seed++) if (solPlay(solitaire, seed, { draw: seed % 2 ? 1 : 3 }).won) wins++;
+  assert.ok(wins >= 1, `ipucuyla hiç kazanılmadı (${wins})`);
+  // geri al: önceki duruma döner
+  const a = solitaire.applyMove(s0, 0, { t: 'draw' });
+  const b = solitaire.applyMove(a, 0, { t: 'undo' });
+  assert.deepEqual(b.w, s0.w);
+  assert.equal(b.s.length, 24);
+  // boş sütuna yalnız papaz
+  const e = { ...s0, t: [[], [{ c: 'S12', up: true }], [], [], [], [], []], w: ['H13'], s: [], f: [[], [], [], []] };
+  const mv = solitaire.legalMoves(e, 0).filter((m) => m.t === 'mv');
+  assert.ok(mv.some((m) => m.from === 'w' && m.to === 't0'));
+  assert.ok(!mv.some((m) => m.from === 't1' && m.to === 't0'));
+});
+
+await test('Golf: bir büyük/küçük, döngü yok, masa temizlenince kazanır', async () => {
+  const s = { t: [[{ c: 'S14', up: true }], [{ c: 'H13', up: true }], [{ c: 'D3', up: true }], [], [], [], []], s: ['C5'], w: ['C2'], won: false };
+  const mv = golf.legalMoves(s, 0).filter((m) => m.t === 'mv').map((m) => m.from);
+  assert.deepEqual(mv.sort(), ['t0', 't2']); // as ve 3, papaz değil
+  let st = golf.applyMove(s, 0, { t: 'mv', from: 't0', to: 'w', n: 1 });
+  st = golf.applyMove(st, 0, { t: 'draw' });
+  assert.ok(!st.won);
+  for (let seed = 1; seed <= 6; seed++) solPlay(golf, seed);
+});
+
+await test('FreeCell: hücre, toplu taşıma sınırı, kart korunumu', async () => {
+  const s0 = freecell.createInitialState({}, makeRng(2));
+  assert.deepEqual(s0.t.map((c) => c.length), [7, 7, 7, 7, 6, 6, 6, 6]);
+  // 3 kartlık dizi: 1 boş hücre + 0 boş sütun → en çok 2 kart taşınır
+  const t = Array.from({ length: 8 }, (_, i) => [{ c: `C${2 + i}`, up: true }]);
+  t[0] = [{ c: 'S10', up: true }, { c: 'H9', up: true }, { c: 'C8', up: true }];
+  t[1] = [{ c: 'D11', up: true }];
+  const s = { t, c: ['S2', 'S3', 'S4', null], f: [[], [], [], []], won: false };
+  const mv = freecell.legalMoves(s, 0).filter((m) => m.from === 't0' && m.to === 't1');
+  assert.equal(mv.length, 0);
+  s.c[0] = null; // 2 boş hücre → 3 kart
+  assert.ok(freecell.legalMoves(s, 0).some((m) => m.from === 't0' && m.to === 't1' && m.n === 3));
+  let wins = 0;
+  for (let seed = 1; seed <= 12; seed++) if (solPlay(freecell, seed).won) wins++;
+  assert.ok(wins >= 1);
+});
+
+await test('Spider: 1/2/4 renk, dağıtım, tamamlanan dizi kalkar', async () => {
+  for (const suits of [1, 2, 4]) {
+    const s = spider.createInitialState({ suits }, makeRng(4));
+    assert.equal(allCards(s).length, 104);
+    assert.equal(new Set(allCards(s)).size, 104);
+    assert.equal(new Set(allCards(s).map((c) => c[0])).size, suits);
+    assert.deepEqual(s.t.map((c) => c.length), [6, 6, 6, 6, 5, 5, 5, 5, 5, 5]);
+    assert.equal(s.s.length, 50);
+  }
+  // papazdan 2'ye dizi + as gelince dizi kalkar, altındaki kapalı açılır
+  const run = [13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2].map((r) => ({ c: `S${r}a`, up: true }));
+  const t = Array.from({ length: 10 }, (_, i) => [{ c: `H${2 + i}b`, up: true }]);
+  t[0] = [{ c: 'D9a', up: false }, ...run];
+  t[1] = [{ c: 'C5b', up: true }, { c: 'S14a', up: true }];
+  const s = { t, s: [], f: [], suits: 4, won: false };
+  const after = spider.applyMove(s, 0, { t: 'mv', from: 't1', to: 't0', n: 1 });
+  assert.equal(after.f.length, 1);
+  assert.deepEqual(after.t[0], [{ c: 'D9a', up: true }]);
+  let wins = 0;
+  for (let seed = 1; seed <= 8; seed++) if (solPlay(spider, seed, { suits: 1 }).won) wins++;
+  assert.ok(wins >= 1);
 });
 
 console.log(results.join('\n'));

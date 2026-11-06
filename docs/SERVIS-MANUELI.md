@@ -123,3 +123,16 @@ Fotoğraf sınırı: 60 KB (validPhoto).
 - `tools/build-sw.mjs`: `tools/sw.template.js`'ten `sw.js` üretir; dosya listesi + içerik özetinden sürüm. Yerelde yeni dosya eklediysen çalıştır (Actions zaten çalıştırır).
 - Servis işçisi yalnız kendi adresinde (https/localhost) ve gömülü değilken kurulur (claude.ai önizlemesinde kurulmaz). Önce önbellek; yeni sürüm arka planda iner, sonraki açılışta geçerli.
 - Simgeler `assets/icons/` (amblem `js/ui/logo.js`'ten Playwright ile basıldı). Yükle düğmesi `beforeinstallprompt` gelince menüde çıkar.
+## v1.7 — Yancı Şerif, içecek dosyaları, avatarlar, sinir, gruplar
+- Yancı: `createYanci({h, settings})` → `mode()` ('sohbet'|'sessiz'), `node({lines, drink, onTap, rich})`, `showHint(nodes)` (9 sn), `say` sık konuşmaz. table-kit `hintText()` resme dokununca: öneri (sıra sendeyse) ya da gidişat. Sürekli öneri yok (`tutorOn() = false`).
+- İçecekler: `assets/drinks/<tür>.svg` (`id="sivi"` sıvı katmanı, `data-sivi-ust/alt`, kahve-salep `data-sivi-mod="kaydir"`). `loadDrinkFiles()` app.js'te; dosya yoksa yerleşik çizim. Öğeler kalıcı (`els[i]`), buhar WAAPI.
+- Avatarlar: `js/ui/avatar.js` LOOKS a1–a8 (çizim). Roster `AVATARS`, `MAX_BOTS = 3`; geçersiz avatar yüklemede a1–a8'e çevrilir.
+- Sinir: chat.js `trackAnger`, `angerOf(i)` (ayar `anger`); kutu sınıfı `angry`/`furious`.
+- Menü: `GROUPS` (index.js) + her oyunda `group`; grup içinde `localeCompare('tr')`.
+## v1.8 — Tek kişilik oyunlar
+- Motor: `js/games/sol-common.js` `withUndo(game)` 1 koltuk sarmalayıcı: `{t:'undo'}`, `{t:'resign'}`, `hist` (300), `moves`, `last`, `stuck` (geri al/bitir dışında hamle yok; oyun bitmez). `rateMove` sarmalı son hamleyi geri çeviren hamleye −60.
+- Yığın kimlikleri: `t0..` sütun, `f0..` temel, `c0..` hücre, `s` deste, `w` açık. Hamle `{t:'mv', from, to, n}`, `{t:'draw'}` (Klondike/Golf), `{t:'deal'}` (Spider). Çift deste kimliği `S14a`.
+- Ekran: `js/ui/sol-table.js` `createSolScreen(deps, opt)`; `opt.layout(state)` → `{cols, need, piles:[{id, col, row, cards:[{c,up}], fan:'down'|'right'|'stack', label}]}`; `opt.status/auto/mid/stuckText/fmtScore/rules/menu`. Oyunlar `js/ui/sol-games.js`. `spec.solo` table-kit'te: süre yok, sıra sesi yok, yancı hamle yorumu yok. `ctx.newGame(confirm)`.
+- Animasyon: hamle öncesi `.solc` konumları ölçülür → yeni durum çizilir → kayan kart WAAPI ile eski yerinden (FLIP; yüz değişirse yolda scaleX), yerinde açılan kart `A.flipInPlace`. Spider'da tamamlanan dizi önce sütunda görünür (`opt.mid`), sonra kalkar.
+- İpucu metinleri `js/ui/sol-tutor.js` (tutor.js LABEL/EXPLAIN'e eklenir): belirtme/ilgi ekleri rakamın okunuşuna göre ("Maça 3'ü", "Kupa 6'nın").
+- Ayarlar: `solDraw` (1|3), `spiderSuits` (1|2|4); oyun menüsünden değişir.

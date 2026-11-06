@@ -23,7 +23,7 @@ Telefonda ve bilgisayarda oynanan, tek uygulamada birçok kart oyunu. Görünü�
 | İhale / açma (araştırılacak) | Hoşkin, Dost Kazığı, 66 (Altmışaltı) |
 | Araştırılacak (aile belli değil) | Kambur, Blöf, Kaptıkaçtı |
 | Kasaya karşı (çip) | Blackjack (Teksas ile ortak çip sistemi) |
-| Tek kişilik | Solitaire, Golf, Spider, Freecell (bot yok) |
+| Tek kişilik | Solitaire, Golf, Spider, FreeCell (tamam, v1.8; bot yok, yancı ipucu verir) |
 | Per açma (ek) | Gin Rummy (v1.2), 51 |
 
 Not: Yanık'ın kuralını kullanıcı da bilmiyor; birlikte öğrenilecek. Sıra: King → Batak → Teksas → diğerleri.
@@ -37,8 +37,9 @@ Pişti (referans oyun) isteğe bağlı olarak başa eklenebilir.
    Ek: Blackjack, Blöf (tamam, v0.5), Fanti, Konken (tamam, v0.6). Kambur: kuralları bekliyor.
    Yönerge, online hissi (süre halkası), bot sohbeti, D · Salon görünümü (v0.6-v0.7).
 5. Per açma ailesi (Yanık, Fanti, Konken), elden atma ailesi (Papaz Kaçtı, Eşek)
-6. PWA kabuğu: manifest + service worker (çevrimdışı kurulum). Barındırma kararı gerekir
-   (Claude artifact sayfası service worker'a izin vermiyor).
+6. PWA kabuğu (tamam, v1.6; GitHub Pages).
+7. Tek kişilik oyunlar (tamam, v1.8).
+8. Kumarhane: Bakara, Üç Kart Poker, Casino Savaşı, At Yarışı (kurallar kullanıcıdan); Kılıç, Türk Pokeri, Kart Barbutu kural bekliyor.
 
 ## Kapsam dışı (şimdilik)
 Çevrimiçi çok oyunculu, hesap/giriş, gerçek para.

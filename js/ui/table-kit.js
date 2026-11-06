@@ -5,7 +5,8 @@
 //   title, game, players(): n, makeConfig(seats)?, menu?: [[etiket, fn(ctx)]], rules?(h),
 //   reset(ctx)?, onStart(ctx)? async (açılış dağıtımı), onTurn(ctx)?, onMove(e, ctx, before)? async (koreografi),
 //   render(ctx) -> Node[]  (STATİK çizim; CSS animasyonu yok),
-//   endHead(winners, ctx, res)?, fmtScore(score, seat, ctx)?, maxThink?
+//   endHead(winners, ctx, res)?, fmtScore(score, seat, ctx)?, maxThink?,
+//   solo? (tek kişilik: süre yok, sıra sesi yok, yancı her hamleyi yorumlamaz)
 // }
 import { Table } from '../core/engine.js';
 import { makeRng } from '../core/rng.js';
@@ -453,6 +454,7 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
   }
   /** Elin oyuncu sırasıyla: auto(cards) ilk dizilişi verir (per bulucu). */
   /** Yeni el dağıtılırken çağrılır: eski dizilişi unut. */
+  ctx.newGame = (confirm = true) => newGame(confirm);
   ctx.resetOrder = () => {
     handOrder = null;
     arrMode = 0;
@@ -736,7 +738,7 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
         if (e.seat === 0 && seats[0]?.kind === 'human' && advice) {
           lastReview = timedOut ? { good: false, text: `Süren bitti; önerilen hamle oynandı: ${advice.label}.`, timeout: true } : review(advice, e.move);
           if (lastReview) lastReview.better = advice.label;
-          if (lastReview && !timedOut) yanci.afterMine({ good: lastReview.good, betterLabel: advice.label });
+          if (lastReview && !timedOut && !spec.solo) yanci.afterMine({ good: lastReview.good, betterLabel: advice.label });
           if (!tutorOn() && !timedOut) lastReview = null;
           advice = null;
         }
@@ -754,7 +756,7 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
           const sAfter = spec.game.scores(e.state);
           chat.onMove(spec.game.id, e, before, e.state, sBefore, sAfter);
           cafe.onMove(e.seat);
-          yanci.afterMove({ seat: e.seat, isBot: seats[e.seat]?.kind === 'bot', nameOf: (i) => seats[i]?.name ?? '?', sBefore, sAfter, myTurnNext: spec.game.currentActor?.(e.state) === 0 && seats[0]?.kind === 'human' });
+          if (!spec.solo) yanci.afterMove({ seat: e.seat, isBot: seats[e.seat]?.kind === 'bot', nameOf: (i) => seats[i]?.name ?? '?', sBefore, sAfter, myTurnNext: spec.game.currentActor?.(e.state) === 0 && seats[0]?.kind === 'human' });
         } catch (err) {
           console.error(err);
         }
@@ -776,9 +778,9 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
             console.error(err);
             advice = null;
           }
-          const limit = +settings.get('turnLimit') || 0;
+          const limit = spec.solo ? 0 : +settings.get('turnLimit') || 0; // tek kişilikte süre yok
           const reflex = moves.length === 1 && moves[0].t === 'tap';
-          if (!reflex) sfx.turn();
+          if (!reflex && !spec.solo) sfx.turn();
           if (limit && !reflex) {
             startClock(0, limit * 1000, () => {
               if (!pending) return;

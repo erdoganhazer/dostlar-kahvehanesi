@@ -206,3 +206,12 @@ Kural (SERVIS-MANUELI): masadaki öğeler içerik değişince yükseklik değiş
 - Menü grupları: Kahvehane / Kumarhane / Tek kişilik, her grup alfabetik. Yeni "yakında" kutuları: Kılıç, At Yarışı, Bakara, Türk Pokeri, Kart Barbutu, Üç Kart Poker, Casino Savaşı.
 - Kurulunca ad her yerde "Dostlar Kahvehanesi".
 - Bekleyen kararlar: 3 botun adları (fotoğraflar telif nedeniyle depoya konmayacak; kullanıcı kendi cihazında yükleyecek), Kılıç / Türk Pokeri / Kart Barbutu kuralları.
+
+## v1.8 — Tek kişilik oyunlar (istek listesi, 2. aşama)
+- Solitaire (Klondike, 1 ya da 3 kart açma), Golf, FreeCell, Spider (1/2/4 renk) oynanır oldu. Menüde "Tek kişilik" grubunda.
+- Ortak masa `sol-table.js`: kart boyu ekrana göre (390 px'te Spider'da 10 sütun sığar), üst üste binen kartta sayı ve renk yan yana okunur. Kartlar her hamlede eski yerinden yenisine kayar, desteden açılan kart yolda döner, altındaki kapalı kart yerinde çevrilir. Açılışta kartlar desteden dağılır.
+- Dokunma: temele gidebilen kart dokununca gider; tek yeri olan oraya gider; birden çok yeri varsa seçilir, gidebileceği yerler hafifçe çerçevelenir.
+- Geri al düğmesi, hamle kalmayınca "Bitir". Klondike'de her şey açılınca "Topla"; FreeCell'de sütunlar sıralanınca "Topla".
+- Yancı Şerif burada da: resmine dokununca "Kupa As'ı temele çıkar" gibi ipucu (kart adları ekleriyle). Tek kişilikte her hamleyi yorumlamaz, süre ve sıra sesi yok.
+- İpucu kalitesi: ipucuyla oynanınca Klondike ~%27, FreeCell ~%55, Spider (tek renk) ~%40 kazanılıyor; gidip gelme önerisi engellendi.
+- Testler: 44/44 (4 yeni: kart korunumu, geri al, kurallar, kazanma).

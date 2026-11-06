@@ -10,6 +10,7 @@ import { equity as pokerEquity } from '../games/poker.js';
 import { lieProb } from '../games/blof.js';
 import { captureOf } from '../games/fanti.js';
 import { solve as gSolve, bestDiscard as gBest } from '../games/gin.js';
+import { SOL_LABEL, SOL_EXPLAIN } from './sol-tutor.js';
 import { solve as kSolve, finishWith as kFinish, bestDiscard, isJoker, cardPen as kPen } from '../games/konken.js';
 
 const rk = (c) => parseInt(c.slice(1), 10);
@@ -205,6 +206,9 @@ export function advise(game, view, moves, seat = 0) {
   const text = EXPLAIN[game.id]?.(view, best) ?? '';
   return { best, bestR: bv, spread, ratings, label, text, view, key, game, only: moves.length === 1 };
 }
+
+Object.assign(LABEL, SOL_LABEL);
+Object.assign(EXPLAIN, SOL_EXPLAIN);
 
 /** Hamleden sonra kısa değerlendirme */
 export function review(adv, move) {

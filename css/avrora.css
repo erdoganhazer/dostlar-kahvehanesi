@@ -667,4 +667,26 @@ table.sheet th, table.sheet td { border: 1px solid #d8c8a4; }
 .ks.furious .av { filter: sepia(.4) saturate(2.2) hue-rotate(-25deg); }
 .pausebtn .pz{display:inline-flex;gap:4px;align-items:center;justify-content:center;height:16px}
 .pausebtn .pz i{display:block;width:4px;height:15px;border-radius:2px;background:currentColor}
+/* ---- Tek kişilik oyunlar (sol-table.js) ---- */
+.soltool { display: flex; align-items: center; gap: 6px; min-height: 34px; flex: none; font-size: 13px; }
+.soltool .solmsg { flex: 1; min-width: 0; opacity: .9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.soltool .btn.sm { padding: 4px 10px; font-size: 13px; min-height: 30px; }
+.solarea { position: relative; flex: 1 1 auto; min-height: 0; touch-action: manipulation; }
+.solslot, .solc { position: absolute; width: var(--sw); height: var(--sh); box-sizing: border-box; }
+.solslot { border: 1.5px solid rgba(255,255,255,.22); border-radius: 6px; display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,.32); font: 600 calc(var(--sw) * .36)/1 Georgia, serif; cursor: pointer; }
+.solc { cursor: pointer; transform-origin: 50% 50%; }
+.solc .card { --card-w: var(--sw); --card-h: var(--sh); width: var(--sw); height: var(--sh); display: block; box-shadow: 0 1px 2px rgba(0,0,0,.45); }
+.solc.sel .card { box-shadow: 0 0 0 2px var(--gold, #e8c15a), 0 2px 6px rgba(0,0,0,.5); }
+.solc.tgt .card, .solslot.tgt { box-shadow: 0 0 0 2px rgba(232,193,90,.55); }
+
+.felt.king.sol { flex-direction: column !important; justify-content: flex-start; gap: 6px; padding: 6px 8px 8px; }
+.felt.king.sol > .yanci { margin-top: auto; }
+
+/* üst üste binen kartta sayı ile rengi yan yana: kartın üst şeridinde ikisi de okunur */
+.solc .card.face .ix { flex-direction: row; align-items: center; width: auto; gap: 2cqw; top: 3cqw; left: 6cqw; }
+.solc .card.face .fr { font-size: 34cqw; }
+.solc .card.face .fr.two { font-size: 34cqw; transform-origin: 0 50%; margin-right: -7cqw; }
+.solc .card.face .fs { width: 24cqw; height: 24cqw; margin-top: 0; }
+
 .pend, .kc.pend, .pc.pend { visibility: hidden !important; }

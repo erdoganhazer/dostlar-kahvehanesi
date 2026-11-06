@@ -29,10 +29,10 @@ export const GAMES = [
   { id: 'barbut', group: 'kumarhane', name: 'Kart Barbutu', desc: 'Kuralları birlikte doğrulayacağız', players: '2-4', status: 'soon' },
   { id: 'ucpoker', group: 'kumarhane', name: 'Üç Kart Poker', desc: 'Üç kartla kasaya karşı', players: '1-4', status: 'soon' },
   { id: 'casinosavasi', group: 'kumarhane', name: 'Casino Savaşı', desc: 'Büyük kart kazanır, eşitlikte savaş', players: '1-4', status: 'soon' },
-  { id: 'solitaire', group: 'tek', name: 'Solitaire', desc: 'Tek kişilik klasik', players: '1', status: 'soon' },
-  { id: 'golf', group: 'tek', name: 'Golf', desc: 'Tek kişilik solitaire', players: '1', status: 'soon' },
-  { id: 'spider', group: 'tek', name: 'Spider', desc: 'Tek kişilik solitaire', players: '1', status: 'soon' },
-  { id: 'freecell', group: 'tek', name: 'FreeCell', desc: 'Tek kişilik solitaire', players: '1', status: 'soon' },
+  { id: 'solitaire', group: 'tek', name: 'Solitaire', desc: 'Klondike, bilinen klasik', players: '1', status: 'ready' },
+  { id: 'golf', group: 'tek', name: 'Golf', desc: 'Bir büyüğü ya da küçüğü at, masayı temizle', players: '1', status: 'ready' },
+  { id: 'spider', group: 'tek', name: 'Spider', desc: 'İki deste, papazdan asa sekiz dizi', players: '1', status: 'ready' },
+  { id: 'freecell', group: 'tek', name: 'FreeCell', desc: 'Kartlar açık, dört boş hücre', players: '1', status: 'ready' },
 ];
 
 // Oyun aileleri (ortak yardımcılar buna göre yazılacak):
