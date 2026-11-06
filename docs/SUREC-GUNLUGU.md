@@ -233,3 +233,4 @@ Kural (SERVIS-MANUELI): masadaki öğeler içerik değişince yükseklik değiş
 - Ana menü: "kâğıt oyunları" yerine "Hazer Erdoğan"; alttaki "dev. Hazer Erdoğan" kaldırıldı.
 - Kullanıcı: gülmeden baksınlar, gözler açık → dört portre ciddi bakışlı, gözler açık, ağız düz; yanak pembesi kaldırıldı.
 - Kullanıcı: Kartal ve Şerif'in saçı kıvırcık olsun → portraits.js curls()/ring(): saç bukle bukle (daire + kıvrım çizgisi).
+- Kullanıcı: Hilmi fotoğrafa biraz daha benzesin → geniş dolgun yüz, iri burun, ağır göz kapakları, kalın kaşlar, geriye taranmış parlak saç, kabarık kahverengi kürk yaka, kırmızı çizgili gömlek, açık gri zemin.

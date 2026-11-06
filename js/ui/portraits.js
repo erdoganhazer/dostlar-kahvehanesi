@@ -1,7 +1,7 @@
 // Kahvehane karakterlerinin çizim portreleri (96×96 SVG). Fotoğraf değil, tip çizimi.
 // a1 Sezai: kel, yanlarda kısa saç, gür kara bıyık, ciddi bakış, lacivert ceket.
 // a2 Kartal: ense boyu gür kıvırcık kara saç, kalın sarkık bıyık, ince yüz, ciddi bakış, siyah tişört.
-// a3 Hilmi: geriye taranmış parlak kara saç, dolgun yüz, ciddi bakış, kürk yakalı palto.
+// a3 Hilmi: geriye taranmış parlak kara saç, geniş dolgun yüz, iri burun, ağır göz kapakları, kürk yakalı palto.
 // a4 Şerif (yancı): kabarık kıvırcık bembeyaz saç, kocaman beyaz pala bıyık ve favori, ciddi bakış, haki kamuflaj ceket.
 // Ortak iskelet face(); her karakter saçını, bıyığını, ağzını, giysisini kendisi verir.
 
@@ -98,21 +98,33 @@ const LOOKS = {
       front: `<path d="M28 42 C27 27 36 19 48 19 C60 19 69 27 68 42 C64 33 56 29 48 29 C40 29 32 33 28 42 Z" fill="${hair}"/>` + curls([[31, 34, 4.6], [36, 28.5, 5], [43, 25.5, 5.2], [50, 25, 5], [57, 26.5, 5.2], [63, 30.5, 4.8], [67, 37, 4.2], [29.5, 41, 3.6]], hair, '#3d2b27'),
     });
   },
-  // Hilmi
+  // Hilmi: geniş yuvarlak yüz, dolgun yanaklar, ağır göz kapakları, kalın kaşlar, iri burun, geriye taranmış
+  // parlak kara saç (yanları kısa), çift çene; kahverengi kabarık kürk yaka, kırmızı çizgili gömlek
   a3: () => {
-    const skin = '#e3ab86';
-    const shade = '#b77a55';
-    const hair = '#141212';
+    const skin = '#dfa27c';
+    const shade = '#b0714c';
+    const hair = '#16130f';
+    const fur = '#7b5636';
+    const furL = '#a9805a';
     return face({
-      skin, shade, bg1: '#7a6a48', bg2: '#3a2f1c', jaw: 3, cheeks: false,
-      cloth: `<path d="M6 96 C8 82 22 74 38 72 L48 80 L58 72 C74 74 88 82 90 96 Z" fill="#6a2a1e"/><path d="M44 74 L48 96 L52 74 L48 79 Z" fill="#2b2b2b"/>` +
-        `<path d="M8 96 C6 84 14 74 26 70 C30 69 34 70 38 72 C34 78 32 86 34 96 Z M88 96 C90 84 82 74 70 70 C66 69 62 70 58 72 C62 78 64 86 62 96 Z" fill="#8a6440"/>` +
-        `<path d="M12 90 C14 84 16 80 20 77 M18 94 C20 86 22 82 26 78 M24 96 C25 88 27 82 31 78 M84 90 C82 84 80 80 76 77 M78 94 C76 86 74 82 70 78 M72 96 C71 88 69 82 65 78" stroke="#b08a5c" stroke-width="2.2" fill="none" stroke-linecap="round"/>`,
-      eyes: eyes({ y: 47.5, h: 2.6, iris: '#2b1b12', gap: 9 }),
-      brows: brow('M33 41.5 Q38 39 44 41', hair, 3) + brow('M52 41 Q58 39 63 41.5', hair, 3),
-      mouth: `<path d="M42 62.5 Q48 61.8 54 62.5" stroke="#6b2a1e" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M41 69 Q48 72 55 69" stroke="${shade}" stroke-width="1.2" fill="none" opacity=".7"/>`,
-      front: `<path d="M26.5 44 C25 28 34 17 49 17 C62 17 71 26 69.5 43 C68 34 66 30 63 28 C58 25 51 24.5 44 25.5 C36 27 30 33 26.5 44 Z" fill="${hair}"/><path d="M33 30 C40 23 52 21 62 25 M35 34 C42 27 52 26 60 28" stroke="#4a4a52" stroke-width="1.3" fill="none" opacity=".9"/>` +
-        `<path d="M26.5 44 C26 49 26.5 53 27.5 55 L29.5 46 Z M69.5 43 C70 48 69.5 52 68.5 55 L66.5 46 Z" fill="${hair}"/>`,
+      skin, shade, bg1: '#d8d3c8', bg2: '#8f8a80', jaw: 4,
+      back: `<path d="M24 46 C22 30 32 15 49 15 C65 15 75 28 72 46 L69 40 L27 40 Z" fill="${hair}"/>`,
+      cloth: `<path d="M6 96 C8 82 22 74 38 72 L48 79 L58 72 C74 74 88 82 90 96 Z" fill="#7a2418"/>` +
+        `<path d="M40 74 L46 96 M46 76 L50 96 M52 76 L54 96 M57 74 L59 96" stroke="#c0462e" stroke-width="1.6" opacity=".8"/><path d="M38 72 L48 80 L44 84 Z M58 72 L48 80 L52 84 Z" fill="#5e1a10"/>` +
+        curls([[10, 92, 6], [14, 84, 6.5], [20, 78, 6.5], [27, 74, 6], [33, 73, 5], [18, 92, 5.5], [26, 86, 5.5], [32, 80, 5],
+          [86, 92, 6], [82, 84, 6.5], [76, 78, 6.5], [69, 74, 6], [63, 73, 5], [78, 92, 5.5], [70, 86, 5.5], [64, 80, 5]], fur, furL),
+      eyes: eyes({ y: 47.5, h: 2.4, iris: '#2b1b12', gap: 9.5 }) +
+        `<path d="M33 46 Q38.5 42.8 44 46 L44 44.6 Q38.5 41.5 33 44.6 Z M52 46 Q57.5 42.8 63 46 L63 44.6 Q57.5 41.5 52 44.6 Z" fill="${shade}"/>` +
+        `<path d="M35 51.5 Q38.5 52.8 42 51.8 M54 51.8 Q57.5 52.8 61 51.5" stroke="${shade}" stroke-width=".9" fill="none" opacity=".5"/>`,
+      brows: brow('M31.5 41 Q37 37.6 44.5 39.8', hair, 3.8) + brow('M51.5 39.8 Q59 37.6 64.5 41', hair, 3.8),
+      nose: `<path d="M48 46 C46.5 51 44.5 54.5 45 57 M48 46 C49.5 51 51.5 54.5 51 57" stroke="${shade}" stroke-width="1.4" fill="none" opacity=".7"/>` +
+        `<path d="M42.5 57 C42.5 54 45 53 48 53.5 C51 53 53.5 54 53.5 57 C53.5 59.5 50.5 60 48 59.6 C45.5 60 42.5 59.5 42.5 57 Z" fill="${shade}" opacity=".35"/><path d="M44 58.6 Q45.5 59.6 47 59 M49 59 Q50.5 59.6 52 58.6" stroke="#7a4430" stroke-width="1.1" fill="none" stroke-linecap="round"/>`,
+      mouth: `<path d="M38 56 C36 60 37 63 39.5 65 M58 56 C60 60 59 63 56.5 65" stroke="${shade}" stroke-width="1.3" fill="none" opacity=".75"/>` +
+        `<path d="M42 64.2 Q48 63 54 64.2" stroke="#7a2e22" stroke-width="2.2" fill="none" stroke-linecap="round"/>` +
+        `<path d="M38 72.5 Q48 77 58 72.5" stroke="${shade}" stroke-width="1.4" fill="none" opacity=".75"/><path d="M33 62 C35 69 41 73.5 48 74 C55 73.5 61 69 63 62 C60 67 55 70 48 70.5 C41 70 36 67 33 62 Z" fill="#2a1d18" opacity=".12"/>`,
+      front: `<path d="M25 45 C23.5 30 33 18 49 18 C64 18 73.5 29 71.5 45 C70 38 68 33 64 31 C58 28 52 27.5 46 28 C38 29 31 34 28 40 C27 41.5 26 43 25 45 Z" fill="${hair}"/>` +
+        `<path d="M31 33 C39 25 52 23 63 27 M30 37 C38 30 51 28.5 62 30.5 M33 30 C41 23.5 52 22 60 23.5" stroke="#55555e" stroke-width="1.2" fill="none" opacity=".85"/>` +
+        `<path d="M25 45 C24.5 49 25 52 26 54 L27.5 46 Z M71.5 45 C72 49 71.5 52 70.5 54 L69 46 Z" fill="${hair}"/>`,
     });
   },
   // Şerif (yancı)
