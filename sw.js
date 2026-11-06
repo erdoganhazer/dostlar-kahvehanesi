@@ -1,6 +1,6 @@
 // Dostlar Kahvehanesi servis işçisi: oyunu cihaza indirir, internetsiz de açılır.
 // Bu dosya tools/build-sw.mjs ile üretilir; elle düzenleme (tools/sw.template.js'i düzenle).
-const VERSION = 'f86311c67a78';
+const VERSION = 'b55200938d28';
 const CACHE = `kahvehane-${VERSION}`;
 const FILES = [
  "./",

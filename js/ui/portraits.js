@@ -74,11 +74,13 @@ const LOOKS = {
     const hair = '#171010';
     return face({
       skin, shade, bg1: '#3c6b5a', bg2: '#163028', jaw: -2,
-      back: `<path d="M22 50 C14 34 22 12 46 12 C70 10 82 30 74 50 C78 60 76 70 70 74 C70 64 68 58 66 52 L30 52 C28 58 26 64 26 74 C20 70 18 60 22 50 Z" fill="${hair}"/><circle cx="24" cy="70" r="5" fill="${hair}"/><circle cx="72" cy="70" r="5" fill="${hair}"/><circle cx="27" cy="77" r="4" fill="${hair}"/><circle cx="69" cy="77" r="4" fill="${hair}"/><path d="M22 58 q3 -3 5 0 q-3 3 -5 0 M70 58 q3 -3 5 0 q-3 3 -5 0 M20 66 q3 -3 5 0 M71 66 q3 -3 5 0 M30 15 q4 -3 7 0 M58 14 q4 -3 7 0" stroke="#3a2a28" stroke-width="1.2" fill="none"/>`,
+      // dağınık, ense boyu kıvırcık saç (örgü yok): arkada başın iki yanından enseye iner, alt ucu bukle bukle
+      back: `<path d="M23 48 C17 32 25 13 47 13 C69 12 79 31 73 48 C74 54 73 60 70 64 C68 61 67 62 65 64 C64 60 64 56 63 52 L33 52 C32 56 32 60 31 64 C29 62 28 61 26 64 C23 60 22 54 23 48 Z" fill="${hair}"/>` +
+        `<path d="M26 64 q2 -4 5 0 M65 64 q2 -4 5 0 M23 56 q3 -2 4 1 M69 56 q3 -2 4 1" stroke="#3a2a28" stroke-width="1.2" fill="none"/>`,
       cloth: `<path d="M10 96 C12 80 26 73 40 72 Q48 78 56 72 C70 73 84 80 86 96 Z" fill="#1c1c1e"/><path d="M40 72 Q48 79 56 72" stroke="#2e2e30" stroke-width="2" fill="none"/>`,
       eyes: eyes({ y: 46.5, h: 2.6, iris: '#3b2414', gap: 8.5 }),
       brows: brow('M33 41 Q38 38.5 44 40.5', hair, 3.2) + brow('M52 40.5 Q58 38.5 63 41', hair, 3.2),
-      mouth: `<path d="M43 64.5 Q48 63.5 53 64.5" stroke="#6b2f22" stroke-width="1.8" fill="none" stroke-linecap="round"/>` +
+      mouth: `<path d="M33 60 C34 68 40 73 48 73.5 C56 73 62 68 63 60 C60 66 55 69 48 69.5 C41 69 36 66 33 60 Z" fill="#2a1d18" opacity=".22"/><path d="M43 64.5 Q48 63.5 53 64.5" stroke="#6b2f22" stroke-width="1.8" fill="none" stroke-linecap="round"/>` +
         `<path d="M48 57 C44 56 38 56.5 36.5 60 C35.5 63 35.5 67 36.2 70 C37.8 66 39 63 41.5 61.5 C44 60.5 46 61 48 61.6 C50 61 52 60.5 54.5 61.5 C57 63 58.2 66 59.8 70 C60.5 67 60.5 63 59.5 60 C58 56.5 52 56 48 57 Z" fill="${hair}"/>` +
         `<circle cx="60" cy="51" r=".9" fill="#5a3322"/>`,
       front: `<path d="M27 46 C26 30 34 21 48 21 C62 21 70 30 69 46 C66 36 60 28 48 28.5 C42 29 37 31 34 35 C31 38 29 42 27 46 Z" fill="${hair}"/><path d="M34 26 C38 21 44 20 48 22 M53 21 C58 20 63 23 66 28" stroke="#3a2a28" stroke-width="1.4" fill="none"/><path d="M36 33 C35 29 38 26 41 26 C39 28 38 31 38 34 Z" fill="${hair}"/>`,
