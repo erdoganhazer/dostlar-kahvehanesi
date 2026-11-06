@@ -227,7 +227,8 @@ Kural (SERVIS-MANUELI): masadaki öğeler içerik değişince yükseklik değiş
 - Kullanıcı: pasif oyunları kaldır, not al. → Menüde yalnız hazır oyunlar görünür. 51, Hoşkin, Dost Kazığı, Pis 7'li, Kambur, Kaptıkaçtı "Sonra yapılacaklar" olarak docs/HEDEF.md'ye yazıldı.
 
 ## v1.10 — Karakterler, kazanma sesi, başlık
-- Kullanıcı fotoğrafların adlarını verdi: Sezai, Kartal, Şerif (yancı), Hilmi. "Sen çiz, azcık düzgün çiz." → `js/ui/portraits.js`: dört ayrıntılı çizim portre (gölgeli ten, gözler, kaş, saç, bıyık, giysi). a1 Sezai (kel, gür bıyık, kocaman gülüş), a2 Kartal (ense boyu dağınık kıvırcık saç, sarkık bıyık, sakal gölgesi; yan örgüler kullanıcı isteğiyle kaldırıldı), a3 Hilmi (geriye taranmış saç, kürk yaka, sırıtış), a4 Şerif (beyaz kabarık saç, pala bıyık). Fotoğraflar depoya konmadı.
+- Kullanıcı fotoğrafların adlarını verdi: Sezai, Kartal, Şerif (yancı), Hilmi. "Sen çiz, azcık düzgün çiz." → `js/ui/portraits.js`: dört ayrıntılı çizim portre (gölgeli ten, gözler, kaş, saç, bıyık, giysi). a1 Sezai (kel, gür bıyık), a2 Kartal (ense boyu dağınık kıvırcık saç, sarkık bıyık, sakal gölgesi; yan örgüler kullanıcı isteğiyle kaldırıldı), a3 Hilmi (geriye taranmış saç, kürk yaka), a4 Şerif (beyaz kabarık saç, pala bıyık). Fotoğraflar depoya konmadı.
 - Hazır oyuncular Sezai, Kartal, Hilmi. Eski kayıtlardaki Kemal/Murat/Cemal adları kendiliğinden yenilerine çevrilir (kullanıcı ad değiştirmediyse).
 - Kazanınca neşeli ses (`sfx.win`: do-mi-sol-do arpej + akor). Kumarhane oyunlarında 1000'den fazla çiple bitirince de çalar.
 - Ana menü: "kâğıt oyunları" yerine "Hazer Erdoğan"; alttaki "dev. Hazer Erdoğan" kaldırıldı.
+- Kullanıcı: gülmeden baksınlar, gözler açık → dört portre ciddi bakışlı, gözler açık, ağız düz; yanak pembesi kaldırıldı.

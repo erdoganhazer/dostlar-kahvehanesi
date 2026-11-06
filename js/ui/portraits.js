@@ -1,8 +1,8 @@
 // Kahvehane karakterlerinin çizim portreleri (96×96 SVG). Fotoğraf değil, tip çizimi.
-// a1 Sezai: kel, yanlarda kısa saç, gür kara bıyık, dişleri görünen kocaman gülüş, lacivert ceket.
+// a1 Sezai: kel, yanlarda kısa saç, gür kara bıyık, ciddi bakış, lacivert ceket.
 // a2 Kartal: uzun kıvırcık kara saç, kalın sarkık bıyık, ince yüz, ciddi bakış, siyah tişört.
-// a3 Hilmi: geriye taranmış parlak kara saç, dolgun yüz, kurnaz sırıtış, kürk yakalı palto.
-// a4 Şerif (yancı): kabarık bembeyaz saç, kocaman beyaz pala bıyık ve favori, şaşkın iri gözler, haki kamuflaj ceket.
+// a3 Hilmi: geriye taranmış parlak kara saç, dolgun yüz, ciddi bakış, kürk yakalı palto.
+// a4 Şerif (yancı): kabarık bembeyaz saç, kocaman beyaz pala bıyık ve favori, ciddi bakış, haki kamuflaj ceket.
 // Ortak iskelet face(); her karakter saçını, bıyığını, ağzını, giysisini kendisi verir.
 
 const uid = (() => {
@@ -57,12 +57,12 @@ const LOOKS = {
     const shade = '#b97c58';
     const hair = '#2a1b14';
     return face({
-      skin, shade, bg1: '#a3402c', bg2: '#5a160c', jaw: 1, cheeks: true,
+      skin, shade, bg1: '#a3402c', bg2: '#5a160c', jaw: 1, cheeks: false,
       cloth: `<path d="M8 96 C10 80 24 72 40 70 L48 82 L56 70 C72 72 86 80 88 96 Z" fill="#1d2b48"/><path d="M40 70 L48 82 L44 96 L34 96 Z M56 70 L48 82 L52 96 L62 96 Z" fill="#162238"/><path d="M41 70 L48 80 L55 70 L52 69 L48 74 L44 69 Z" fill="#202020"/>`,
       back: '',
-      eyes: `<path d="M34 46 Q39 42 44 46" fill="none" stroke="#2a1a12" stroke-width="2.2" stroke-linecap="round"/><path d="M52 46 Q57 42 62 46" fill="none" stroke="#2a1a12" stroke-width="2.2" stroke-linecap="round"/><path d="M33 49 Q35 50.5 37 49.6M59 49.6 Q61 50.5 63 49" stroke="${shade}" stroke-width="1" fill="none"/>`,
+      eyes: eyes({ y: 46.5, h: 2.8, iris: '#2e1d12', gap: 9 }),
       brows: brow('M33 39 Q38 35.5 44 38', hair, 2.6) + brow('M52 38 Q58 35.5 63 39', hair, 2.6),
-      mouth: `<path d="M37 60 Q48 73 59 60 Q48 64 37 60 Z" fill="#5a1d14"/><path d="M38.5 60.5 Q48 64 57.5 60.5 L57 62.5 Q48 66 39 62.5 Z" fill="#f4ead2"/><path d="M42 61.6v2.6M45 62.4v2.8M48 62.7v2.9M51 62.4v2.8M54 61.6v2.6" stroke="#c9b98f" stroke-width=".7"/>` +
+      mouth: `<path d="M42 63.5 Q48 62.8 54 63.5" stroke="#6b2f22" stroke-width="1.8" fill="none" stroke-linecap="round"/>` +
         `<path d="M32 58.5 C36 53 42 53 48 56 C54 53 60 53 64 58.5 C61 57.5 57 57.6 53 59 C51 59.5 49.5 59 48 58.2 C46.5 59 45 59.5 43 59 C39 57.6 35 57.5 32 58.5 Z" fill="${hair}"/>`,
       front: `<path d="M27.5 50 C26.5 44 27 38 29 34 C30 39 31 43 31.5 48 Z M68.5 50 C69.5 44 69 38 67 34 C66 39 65 43 64.5 48 Z" fill="#3a2e28"/><path d="M36 24 Q48 19 60 24" stroke="#f3c9a8" stroke-width="2" fill="none" opacity=".55"/>`,
     });
@@ -92,13 +92,13 @@ const LOOKS = {
     const shade = '#b77a55';
     const hair = '#141212';
     return face({
-      skin, shade, bg1: '#7a6a48', bg2: '#3a2f1c', jaw: 3, cheeks: true,
+      skin, shade, bg1: '#7a6a48', bg2: '#3a2f1c', jaw: 3, cheeks: false,
       cloth: `<path d="M6 96 C8 82 22 74 38 72 L48 80 L58 72 C74 74 88 82 90 96 Z" fill="#6a2a1e"/><path d="M44 74 L48 96 L52 74 L48 79 Z" fill="#2b2b2b"/>` +
         `<path d="M8 96 C6 84 14 74 26 70 C30 69 34 70 38 72 C34 78 32 86 34 96 Z M88 96 C90 84 82 74 70 70 C66 69 62 70 58 72 C62 78 64 86 62 96 Z" fill="#8a6440"/>` +
         `<path d="M12 90 C14 84 16 80 20 77 M18 94 C20 86 22 82 26 78 M24 96 C25 88 27 82 31 78 M84 90 C82 84 80 80 76 77 M78 94 C76 86 74 82 70 78 M72 96 C71 88 69 82 65 78" stroke="#b08a5c" stroke-width="2.2" fill="none" stroke-linecap="round"/>`,
-      eyes: `<path d="M34 47.5 Q39 44.5 44 47.5" fill="none" stroke="#2a1a12" stroke-width="2.2" stroke-linecap="round"/><path d="M52 47.5 Q57 44.5 62 47.5" fill="none" stroke="#2a1a12" stroke-width="2.2" stroke-linecap="round"/><path d="M34.5 49.5 Q39 51 43.5 49.5M52.5 49.5 Q57 51 61.5 49.5" stroke="${shade}" stroke-width="1" fill="none"/>`,
+      eyes: eyes({ y: 47.5, h: 2.6, iris: '#2b1b12', gap: 9 }),
       brows: brow('M33 41.5 Q38 39 44 41', hair, 3) + brow('M52 41 Q58 39 63 41.5', hair, 3),
-      mouth: `<path d="M38 61 Q44 65.5 50 63.5 Q55 62.5 59 59" fill="none" stroke="#6b2a1e" stroke-width="2" stroke-linecap="round"/><path d="M59 59 q1.5 -.5 2 1" stroke="#6b2a1e" stroke-width="1.4" fill="none" stroke-linecap="round"/><path d="M41 69 Q48 72 55 69" stroke="${shade}" stroke-width="1.2" fill="none" opacity=".7"/>`,
+      mouth: `<path d="M42 62.5 Q48 61.8 54 62.5" stroke="#6b2a1e" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M41 69 Q48 72 55 69" stroke="${shade}" stroke-width="1.2" fill="none" opacity=".7"/>`,
       front: `<path d="M26.5 44 C25 28 34 17 49 17 C62 17 71 26 69.5 43 C68 34 66 30 63 28 C58 25 51 24.5 44 25.5 C36 27 30 33 26.5 44 Z" fill="${hair}"/><path d="M33 30 C40 23 52 21 62 25 M35 34 C42 27 52 26 60 28" stroke="#4a4a52" stroke-width="1.3" fill="none" opacity=".9"/>` +
         `<path d="M26.5 44 C26 49 26.5 53 27.5 55 L29.5 46 Z M69.5 43 C70 48 69.5 52 68.5 55 L66.5 46 Z" fill="${hair}"/>`,
     });
@@ -110,15 +110,15 @@ const LOOKS = {
     const white = '#f1eee8';
     const whiteS = '#cfc9bf';
     return face({
-      skin, shade, bg1: '#8a5a24', bg2: '#3e260c', jaw: 1, cheeks: true,
+      skin, shade, bg1: '#8a5a24', bg2: '#3e260c', jaw: 1, cheeks: false,
       back: `<path d="M20 52 C12 40 16 18 34 12 C42 6 58 6 66 12 C82 18 86 40 76 52 C78 44 74 36 70 34 L26 34 C22 36 18 44 20 52 Z" fill="${white}"/><circle cx="22" cy="40" r="7" fill="${white}"/><circle cx="74" cy="40" r="7" fill="${white}"/><circle cx="30" cy="16" r="7" fill="${white}"/><circle cx="66" cy="16" r="7" fill="${white}"/><circle cx="48" cy="10" r="8" fill="${white}"/>`,
       cloth: `<path d="M8 96 C10 81 24 73 40 71 L48 79 L56 71 C72 73 86 81 88 96 Z" fill="#6f6a3e"/>` +
         `<path d="M16 88 q5 -4 9 0 q-4 4 -9 0z M30 82 q6 -3 9 1 q-5 3 -9 -1z M60 84 q5 -4 10 0 q-5 3 -10 0z M74 90 q5 -3 8 1 q-4 3 -8 -1z M22 94 q4 -2 7 1 M66 94 q4 -3 8 0" fill="#4e4a2a" stroke="#4e4a2a" stroke-width="1"/>` +
         `<path d="M41 71 L48 79 L55 71 L52 70 L48 74 L44 70 Z" fill="#2c5a73"/><path d="M44 72 l4 3 l4 -3" stroke="#e8e0c8" stroke-width=".8" fill="none"/>`,
-      eyes: eyes({ y: 45.5, h: 4.2, iris: '#4a3626', gap: 9 }),
+      eyes: eyes({ y: 45.5, h: 3, iris: '#4a3626', gap: 9 }),
       brows: brow('M32 37 Q37 33 44 36', whiteS, 3.6) + brow('M52 36 Q59 33 64 37', whiteS, 3.6),
       nose: `<path d="M48 45 C45.5 51 43 55 45 58 C47 59.5 49.5 59.5 51.5 58" fill="none" stroke="${shade}" stroke-width="1.8" stroke-linecap="round"/><ellipse cx="48" cy="56" rx="4" ry="3" fill="#e79f86" opacity=".6"/>`,
-      mouth: `<ellipse cx="48" cy="66" rx="3.6" ry="2.6" fill="#5a1d14"/>` +
+      mouth: `<path d="M44 67 Q48 66.4 52 67" stroke="#6b2a1e" stroke-width="1.6" fill="none" stroke-linecap="round"/>` +
         `<path d="M48 58.5 C43 57 37 57.5 33 61 C29 64.5 27 70 28.5 76 C30 72 32 68.5 36 66.5 C40 64.5 44 64 48 63.5 C52 64 56 64.5 60 66.5 C64 68.5 66 72 67.5 76 C69 70 67 64.5 63 61 C59 57.5 53 57 48 58.5 Z" fill="${white}"/>` +
         `<path d="M34 63 C38 61 43 61 47 62 M62 63 C58 61 53 61 49 62" stroke="${whiteS}" stroke-width="1" fill="none"/>`,
       front: `<path d="M26 40 C24 50 25 60 29 66 C30.5 60 30 52 30 44 Z M70 40 C72 50 71 60 67 66 C65.5 60 66 52 66 44 Z" fill="${white}"/>` +
