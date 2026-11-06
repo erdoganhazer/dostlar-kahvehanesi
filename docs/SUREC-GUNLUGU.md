@@ -222,3 +222,6 @@ Kural (SERVIS-MANUELI): masadaki öğeler içerik değişince yükseklik değiş
 - Hepsi 1000 çip, 10 el, bahis 50/100/200. Kartlar desteden açılarak uçar; At Yarışı'nda dört kulvar, Kılıç'ta iki yığın ve söylenen kart, Bakara'da iki el, Üç Kart Poker ve Savaş'ta Blackjack gibi satırlar.
 - Şerif'e dokununca: şans oyunlarında "hepsinin şansı eşit, bahsi küçük tut"; Bakara'da kasa eli; Üç Kart Poker'de kız-6-4 kuralı; Savaş'ta her zaman savaş. Bahis miktarı için hamleni eleştirmez; şans oyunlarında hiç eleştirmez.
 - Testler: 50/50.
+
+## v1.9.1
+- Kullanıcı: pasif oyunları kaldır, not al. → Menüde yalnız hazır oyunlar görünür. 51, Hoşkin, Dost Kazığı, Pis 7'li, Kambur, Kaptıkaçtı "Sonra yapılacaklar" olarak docs/HEDEF.md'ye yazıldı.

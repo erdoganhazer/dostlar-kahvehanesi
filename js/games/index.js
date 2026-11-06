@@ -13,6 +13,7 @@ export const GAMES = [
   { id: 'fanti', group: 'kahvehane', name: 'Fanti', desc: '11 yap, kartları topla', players: '2 veya 4', status: 'ready' },
   { id: 'konken', group: 'kahvehane', name: 'Konken', desc: 'Elini per ve seriyle bitir', players: '2-4', status: 'ready' },
   { id: 'gin', group: 'kahvehane', name: 'Gin Rummy', desc: 'Kapı de ya da gin yap, 100\'e ilk ulaş', players: '2', status: 'ready' },
+  // status 'soon': menüde görünmez, sonra yapılacak (liste: docs/HEDEF.md "Sonra yapılacaklar")
   { id: '51', group: 'kahvehane', name: '51', desc: 'Per açma oyunu (kuralları birlikte doğrulayacağız)', players: '4', status: 'soon' },
   { id: 'hoskin', group: 'kahvehane', name: 'Hoşkin', desc: 'İhaleli açma ve el alma oyunu (kuralları araştırılacak)', players: '3-4', status: 'soon' },
   { id: 'dostkazigi', group: 'kahvehane', name: 'Dost Kazığı', desc: 'Kuralları araştırılacak', players: '?', status: 'soon' },

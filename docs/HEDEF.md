@@ -41,5 +41,16 @@ Pişti (referans oyun) isteğe bağlı olarak başa eklenebilir.
 7. Tek kişilik oyunlar (tamam, v1.8).
 8. Kumarhane ve Kılıç (tamam, v1.9): Kılıç, At Yarışı, Bakara, Üç Kart Poker, Casino Savaşı. Türk Pokeri ve Kart Barbutu iptal.
 
+## Sonra yapılacaklar (06.11.2026, menüden kaldırıldı)
+Kullanıcı: "pasif oyunları kaldır, not al, sonra yapacağız". Menüde artık yalnız oynanabilir oyunlar var.
+Bu oyunlar `js/games/index.js`'te `status: 'soon'` olarak duruyor (menüde görünmez); kuralları doğrulanınca yazılacak:
+- 51 (per açma, 4 kişi)
+- Hoşkin (ihaleli açma, 3-4 kişi)
+- Dost Kazığı
+- Pis 7'li
+- Kambur
+- Kaptıkaçtı
+Ayrıca bekleyen küçük işler: telefonda 4 kişilik At Yarışı'nda kulvarlar dar; yatay ekranda alt bilgi yazısının son satırı kesiliyor (Blackjack ve kumarhane oyunları); 3 hazır oyuncunun adları (fotoğraflar depoya konmaz).
+
 ## Kapsam dışı (şimdilik)
 Çevrimiçi çok oyunculu, hesap/giriş, gerçek para.
