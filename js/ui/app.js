@@ -186,7 +186,6 @@ function screenMenu() {
         const list = GAMES.filter((g) => g.group === gid && g.status === 'ready') // yapılacaklar menüde görünmez (docs/HEDEF.md).sort((a, b) => a.name.localeCompare(b.name, 'tr'));
         return list.length ? [h('div', { class: 'sec' }, title), h('div', { class: 'tiles' }, list.map((g, k) => tile(g, k)))] : [];
       }),
-      h('p', { class: 'hint' }, `${roster.active().length} oyuncu hazır. Aynı oyuncular tüm oyunlarda oturur.`),
       installPrompt && !standalone()
         ? h('button', { class: 'btn installbtn', onclick: async () => {
           installPrompt.prompt();
