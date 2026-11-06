@@ -16,6 +16,7 @@ export function createUcpokerScreen(deps) {
 
   return createMatchScreen(deps, {
     yazboz: false,
+    wonByScore: (res) => res.scores[0] > 1000,
     title: 'Üç Kart Poker',
     game: up,
     players: () => settings.get('ucpokerPlayers'),

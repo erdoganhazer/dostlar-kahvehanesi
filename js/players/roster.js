@@ -10,9 +10,9 @@ const STYLES = ['temkinli', 'dengeli', 'atak'];
 const SPEEDS = ['hizli', 'normal', 'yavas'];
 
 export const DEFAULT_BOTS = [
-  { id: 'bot-1', name: 'Kemal', avatar: 'a1', level: 2, style: 'dengeli', speed: 'normal', active: true },
-  { id: 'bot-2', name: 'Murat', avatar: 'a2', level: 3, style: 'atak', speed: 'normal', active: true },
-  { id: 'bot-3', name: 'Cemal', avatar: 'a3', level: 2, style: 'temkinli', speed: 'normal', active: true },
+  { id: 'bot-1', name: 'Sezai', avatar: 'a1', level: 2, style: 'dengeli', speed: 'normal', active: true },
+  { id: 'bot-2', name: 'Kartal', avatar: 'a2', level: 3, style: 'atak', speed: 'normal', active: true },
+  { id: 'bot-3', name: 'Hilmi', avatar: 'a3', level: 2, style: 'temkinli', speed: 'normal', active: true },
 ];
 
 export const validPhoto = (p) => (typeof p === 'string' && /^data:image\/(jpeg|png|webp);base64,/.test(p) && p.length < 60000 ? p : '');
@@ -35,6 +35,18 @@ export class Roster {
     this.storage = storage;
     const saved = storage.get('roster.v1', null);
     this.bots = Array.isArray(saved) && saved.length ? saved.map((b, k) => ({ ...sanitize({ stats: {}, ...b }), ...(AVATARS.includes(b.avatar) ? {} : { avatar: AVATARS[k % AVATARS.length] }) })) : this._defaults();
+    // eski hazır adlar yeni karakterlere (kullanıcı adını değiştirmediyse)
+    const RENAME = { 'bot-1': ['Kemal', 'Sezai', 'a1'], 'bot-2': ['Murat', 'Kartal', 'a2'], 'bot-3': ['Cemal', 'Hilmi', 'a3'] };
+    let renamed = false;
+    for (const b of this.bots) {
+      const r = RENAME[b.id];
+      if (r && b.name === r[0]) {
+        b.name = r[1];
+        b.avatar = r[2];
+        renamed = true;
+      }
+    }
+    if (renamed) this._save();
     // en fazla 3 hazır oyuncu: fazlası (önce etkin olanlar kalır) atılır
     if (this.bots.length > MAX_BOTS) {
       this.bots = [...this.bots.filter((b) => b.active), ...this.bots.filter((b) => !b.active)].slice(0, MAX_BOTS);

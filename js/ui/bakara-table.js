@@ -15,6 +15,7 @@ export function createBakaraScreen(deps) {
 
   return createMatchScreen(deps, {
     yazboz: false,
+    wonByScore: (res) => res.scores[0] > 1000,
     title: 'Bakara',
     game: bk,
     players: () => settings.get('bakaraPlayers'),

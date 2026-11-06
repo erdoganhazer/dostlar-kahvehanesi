@@ -1,6 +1,7 @@
 // Avatar: çizimle yapılmış kahvehane yüzü (a1…a8) ya da yüklenen fotoğraf. Emoji yok.
 // Fotoğraf 96x96'ya kırpılıp JPEG veri adresi olarak saklanır.
 import { AVATARS } from '../players/roster.js';
+import { portraitSvg } from './portraits.js';
 
 // Her yüz: zemin, ten, saç rengi, saç biçimi, bıyık, gözlük, kasket
 const LOOKS = {
@@ -14,6 +15,8 @@ const LOOKS = {
   a8: { bg: '#8a5a12', skin: '#f0c9a8', hair: '#4a2a16', cut: 'uzun', mus: null },
 };
 export function avatarSvg(key) {
+  const pt = portraitSvg(key); // a1–a4: Sezai, Kartal, Hilmi, Şerif (ayrıntılı çizim)
+  if (pt) return pt;
   const L = LOOKS[key] || LOOKS.a1;
   const hair = {
     kisa: `<path d="M27 40c0-14 9-22 21-22s21 8 21 22c-3-7-9-11-21-11s-18 4-21 11z" fill="${L.hair}"/>`,

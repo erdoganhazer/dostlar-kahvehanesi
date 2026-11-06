@@ -33,6 +33,7 @@ export function createBlackjackScreen(deps) {
 
   return createMatchScreen(deps, {
     yazboz: false,
+    wonByScore: (res) => res.scores[0] > 1000,
     title: 'Blackjack',
     game: bj,
     players: () => settings.get('blackjackPlayers'),

@@ -159,7 +159,7 @@ const GLYPH = { king: '♥', batak: '♠', teksas: '♦', yanik: '♣', blackjac
 function brand() {
   const logo = h('span', { class: 'blogo' });
   logo.innerHTML = logoSvg(84);
-  return h('div', { class: 'brand' }, logo, h('div', { class: 'btxt' }, h('div', { class: 'bt1' }, 'Dostlar'), h('div', { class: 'bt2' }, 'Kahvehanesi'), h('div', { class: 'bt3' }, '· kâğıt oyunları ·')));
+  return h('div', { class: 'brand' }, logo, h('div', { class: 'btxt' }, h('div', { class: 'bt1' }, 'Dostlar'), h('div', { class: 'bt2' }, 'Kahvehanesi'), h('div', { class: 'bt3' }, '· Hazer Erdoğan ·')));
 }
 
 function screenMenu() {
@@ -194,8 +194,7 @@ function screenMenu() {
           installPrompt = null;
           render();
         } }, '📲 Uygulama olarak yükle')
-        : null,
-      h('div', { class: 'credit' }, 'dev. Hazer Erdoğan')
+        : null
     )
   );
 }

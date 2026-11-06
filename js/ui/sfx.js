@@ -1,5 +1,5 @@
 // Ses efektleri: dosya yok, Web Audio ile üretilir (küçük, telifsiz, her tarayıcıda aynı).
-// card: kâğıt kayması (dağıtma, çekme, atma, toplama) · turn: sıra sende · tick: süre azalıyor · msg: biri konuştu
+// card: kâğıt kayması (dağıtma, çekme, atma, toplama) · turn: sıra sende · tick: süre azalıyor · msg: biri konuştu · win: kazandın
 // Ayar 'sound' (true/false). Tarayıcı ilk dokunuştan önce ses çaldırmaz; bağlam ilk dokunuşta açılır.
 let settings = null;
 /** app.js açılışta ayar nesnesini verir */
@@ -109,5 +109,14 @@ export const sfx = {
     const c = ac();
     if (!c || c.state !== 'running') return;
     tone(c, { f: 520, f2: 880, dur: 0.11, type: 'triangle', g: 0.16 });
+  },
+  /** Kazandın: neşeli yükselen arpej ve parlak son akor (do-mi-sol-do) */
+  win() {
+    if (!on() || !gate('win', 1500)) return;
+    const c = ac();
+    if (!c || c.state !== 'running') return;
+    [523, 659, 784, 1047].forEach((f, k) => tone(c, { f, t0: k * 0.11, dur: 0.16, type: 'triangle', g: 0.17 }));
+    [784, 1047, 1319].forEach((f) => tone(c, { f, t0: 0.48, dur: 0.6, type: 'triangle', g: 0.1 }));
+    tone(c, { f: 1568, t0: 0.6, dur: 0.35, type: 'sine', g: 0.06 });
   },
 };

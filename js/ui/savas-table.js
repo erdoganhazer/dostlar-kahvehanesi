@@ -15,6 +15,7 @@ export function createSavasScreen(deps) {
 
   return createMatchScreen(deps, {
     yazboz: false,
+    wonByScore: (res) => res.scores[0] > 1000,
     title: 'Casino Savaşı',
     game: sv,
     players: () => settings.get('savasPlayers'),

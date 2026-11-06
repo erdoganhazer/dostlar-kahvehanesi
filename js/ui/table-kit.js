@@ -809,6 +809,7 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
       yanci.end(res.winners.includes(0));
     } catch {}
     const { scores, winners } = res;
+    if (winners.includes(0) || (spec.wonByScore && spec.wonByScore(res))) sfx.win(); // kazanınca neşeli ses
     roster.recordResult(spec.game.id, seats.map((s, i) => ({ s, i })).filter((x) => x.s.kind === 'bot').map((x) => ({ id: x.s.id, won: winners.includes(x.i) })));
     const order = scores.map((_, i) => i).sort((a, b) => scores[b] - scores[a]);
     const lines = order.map((i, k) => h('div', { class: 'drow' }, h('span', {}, `${k + 1}. ${ctx.name(i)}`), h('b', { class: scores[i] < 0 ? 'neg' : 'pos' }, spec.fmtScore ? spec.fmtScore(scores[i], i, ctx) : scores[i])));
