@@ -144,6 +144,6 @@ Fotoğraf sınırı: 60 KB (validPhoto).
 - Ayarlar: `atyarisiPlayers` (2–4), `bakaraPlayers`, `ucpokerPlayers`, `savasPlayers` (1–4); oyun açılırken sorulur.
 - Menü kimliği `savas` (eski 'casinosavasi'); `turkpoker`, `barbut` kaldırıldı.
 ## v1.10
-- `js/ui/portraits.js` `portraitSvg(key)`: a1–a4 ayrıntılı portreler (`face()` ortak iskelet + karakterin saçı/bıyığı/ağzı/giysisi). `avatarSvg` önce buna bakar; a5–a8 eski basit çizim.
 - Roster yüklemede `RENAME`: bot-1/2/3 eski varsayılan adlardaysa Sezai/Kartal/Hilmi ve a1/a2/a3.
 - `sfx.win()`; table-kit `finish` insan kazanınca ya da `spec.wonByScore(res)` doğruysa çalar.
+- v1.10.1: a1–a4 artık resim: `assets/avatars/<key>.webp` (avatarSvg SVG içinde `<image>` döndürür). Değiştirmek için aynı adla 256×256 webp koy. portraits.js kaldırıldı.

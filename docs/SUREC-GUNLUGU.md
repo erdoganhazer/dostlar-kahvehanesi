@@ -234,3 +234,4 @@ Kural (SERVIS-MANUELI): masadaki öğeler içerik değişince yükseklik değiş
 - Kullanıcı: gülmeden baksınlar, gözler açık → dört portre ciddi bakışlı, gözler açık, ağız düz; yanak pembesi kaldırıldı.
 - Kullanıcı: Kartal ve Şerif'in saçı kıvırcık olsun → portraits.js curls()/ring(): saç bukle bukle (daire + kıvrım çizgisi).
 - Kullanıcı: Hilmi fotoğrafa biraz daha benzesin → geniş dolgun yüz, iri burun, ağır göz kapakları, kalın kaşlar, geriye taranmış parlak saç, kabarık kahverengi kürk yaka, kırmızı çizgili gömlek, açık gri zemin.
+- Kullanıcı kendi çizimlerini verdi ("telife girmiyor"): dört yüz kırpılıp assets/avatars/a1–a4.webp (256 px, beyaz zemin renkli zemine çevrildi). a1 Sezai, a2 Kartal, a3 Hilmi, a4 Şerif. Benim çizdiğim portraits.js kaldırıldı.

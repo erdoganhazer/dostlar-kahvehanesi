@@ -1,9 +1,9 @@
 // Avatar: çizimle yapılmış kahvehane yüzü (a1…a8) ya da yüklenen fotoğraf. Emoji yok.
 // Fotoğraf 96x96'ya kırpılıp JPEG veri adresi olarak saklanır.
 import { AVATARS } from '../players/roster.js';
-import { portraitSvg } from './portraits.js';
 
-// Her yüz: zemin, ten, saç rengi, saç biçimi, bıyık, gözlük, kasket
+const PICS = ['a1', 'a2', 'a3', 'a4'];
+// Her yüz (a5–a8 basit çizim): zemin, ten, saç rengi, saç biçimi, bıyık, gözlük, kasket
 const LOOKS = {
   a1: { bg: '#7a1c10', skin: '#e8b48f', hair: '#2b1a12', cut: 'kisa', mus: 'kalin' },
   a2: { bg: '#1f4d3a', skin: '#d9a07a', hair: '#1a1a1a', cut: 'uzun', mus: 'ince' },
@@ -15,8 +15,8 @@ const LOOKS = {
   a8: { bg: '#8a5a12', skin: '#f0c9a8', hair: '#4a2a16', cut: 'uzun', mus: null },
 };
 export function avatarSvg(key) {
-  const pt = portraitSvg(key); // a1–a4: Sezai, Kartal, Hilmi, Şerif (ayrıntılı çizim)
-  if (pt) return pt;
+  // a1–a4: Sezai, Kartal, Hilmi, Şerif — kullanıcının verdiği çizimler (assets/avatars/<key>.webp)
+  if (PICS.includes(key)) return `<svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><image href="assets/avatars/${key}.webp" width="96" height="96"/></svg>`;
   const L = LOOKS[key] || LOOKS.a1;
   const hair = {
     kisa: `<path d="M27 40c0-14 9-22 21-22s21 8 21 22c-3-7-9-11-21-11s-18 4-21 11z" fill="${L.hair}"/>`,
