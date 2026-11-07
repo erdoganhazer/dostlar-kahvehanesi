@@ -734,4 +734,9 @@ table.sheet th, table.sheet td { border: 1px solid #d8c8a4; }
 .center.bkarea .deck { top: 10px; margin-top: 0; left: 10px; }
 .center.bkarea .bkmsg { padding-left: calc(var(--tc-w) + 14px); }
 
+/* Yancı ipucu vurgusu: önerilen kart altın çerçeve, gideceği yer kesik çizgi (yanıp sönme yok) */
+.hintsrc.card, .hintsrc > .card, .hintsrc .card { box-shadow: 0 0 0 3px #f2c94c, 0 4px 12px rgba(0,0,0,.55) !important; }
+.hintdst.card, .hintdst > .card, .hintdst .card { outline: 3px dashed #f2c94c; outline-offset: 2px; }
+.solslot.hintdst, .hintdst:not(.card):not(:has(.card)) { outline: 3px dashed #f2c94c; outline-offset: 2px; }
+
 .pend, .kc.pend, .pc.pend { visibility: hidden !important; }

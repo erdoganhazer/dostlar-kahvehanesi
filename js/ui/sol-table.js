@@ -205,6 +205,18 @@ export function createSolScreen(deps, opt) {
     makeConfig: opt.makeConfig,
     rules: opt.rules,
     menu: opt.menu,
+    // yancı ipucu: taşınacak kart(lar) ve gideceği kart / boş yer
+    hintMarks(m, st) {
+      const L = opt.layout(st);
+      const pile = (id) => L.piles.find((p) => p.id === id);
+      if (m.t === 'draw' || m.t === 'deal') return { src: [], dst: [], piles: ['s'] };
+      if (m.t !== 'mv') return null;
+      const from = pile(m.from);
+      const to = pile(m.to);
+      const src = from ? from.cards.slice(-(m.n || 1)).map((x) => x.c) : [];
+      const top = to?.cards[to.cards.length - 1];
+      return { src, dst: top ? [top.c] : [], piles: top ? [] : [m.to] };
+    },
     reset() {
       note = null;
       disp = null;

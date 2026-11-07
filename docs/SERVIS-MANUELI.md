@@ -147,3 +147,6 @@ Fotoğraf sınırı: 60 KB (validPhoto).
 - Roster yüklemede `RENAME`: bot-1/2/3 eski varsayılan adlardaysa Sezai/Kartal/Hilmi ve a1/a2/a3.
 - `sfx.win()`; table-kit `finish` insan kazanınca ya da `spec.wonByScore(res)` doğruysa çalar.
 - v1.10.1: a1–a4 artık resim: `assets/avatars/<key>.webp` (avatarSvg SVG içinde `<image>` döndürür). Değiştirmek için aynı adla 256×256 webp koy. portraits.js kaldırıldı.
+## v1.11
+- İpucu vurgusu: table-kit `mark` ({src, dst, piles}); `spec.hintMarks(move, state)` yoksa hamledeki `c`/`cards`/`card` (kaynak) ve `take` (hedef). Render sonrası `applyMarks()` sınıf ekler: `.hintsrc`, `.hintdst` (css sonunda). sol-table `hintMarks` yığın kimliğiyle (`data-pile`).
+- Yancı: `TALK_MS` (6 sn) sonra söz solar (`fadeOut`), `talkLive()`.

@@ -6,6 +6,7 @@
 //   reset(ctx)?, onStart(ctx)? async (açılış dağıtımı), onTurn(ctx)?, onMove(e, ctx, before)? async (koreografi),
 //   render(ctx) -> Node[]  (STATİK çizim; CSS animasyonu yok),
 //   endHead(winners, ctx, res)?, fmtScore(score, seat, ctx)?, maxThink?,
+//   hintMarks?(move, state) → {src:[kart], dst:[kart], piles:[yığın]} (yancı ipucunda vurgulanacaklar),
 //   solo? (tek kişilik: süre yok, sıra sesi yok, yancı her hamleyi yorumlamaz), chance? (şans oyunu: yancı hamleni eleştirmez)
 // }
 import { Table } from '../core/engine.js';
@@ -92,6 +93,29 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
 
   // Yönerge: sıra sendeyken öneri, hamlenden sonra değerlendirme (js/ui/tutor.js)
   let advice = null;
+  // Yancı ipucunda önerilen kartlar ve gideceği yer vurgulanır (9 sn ya da hamle yapılana kadar)
+  let mark = null; // { src:[kart], dst:[kart], piles:[yığın] }
+  let markT = 0;
+  function marksFor(m) {
+    if (!m) return null;
+    const own = spec.hintMarks?.(m, state);
+    if (own) return own;
+    const src = m.cards || (m.c ? [m.c] : m.card ? [m.card] : []);
+    const dst = m.take ? [...m.take] : [];
+    return src.length || dst.length ? { src, dst, piles: [] } : null;
+  }
+  function showMarks() {
+    clearTimeout(markT);
+    mark = advice && pending ? marksFor(advice.best) : null;
+    if (mark) markT = setTimeout(() => { mark = null; safeRender(); }, 9000);
+  }
+  function applyMarks() {
+    if (!mark) return;
+    const tag = (sel, cls) => body.querySelectorAll(sel).forEach((e) => e.classList.add(cls));
+    for (const id of mark.src) tag(`[data-card="${CSS.escape(id)}"]`, 'hintsrc');
+    for (const id of mark.dst) tag(`[data-card="${CSS.escape(id)}"]`, 'hintdst');
+    for (const id of mark.piles || []) tag(`[data-pile="${CSS.escape(id)}"]`, 'hintdst');
+  }
   let lastReview = null;
   // Yancı (js/ui/yanci.js): oyun sohbeti onun balonundan gelir; resmine dokununca ipucu verir; altındaki 🔇 ile susar.
   const yanci = createYanci({ h, settings });
@@ -559,6 +583,7 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
     }
     body.replaceChildren(...(LANDSCAPE.matches ? landscape(nodes) : nodes), ...chat.nodes());
     cafe.afterRender(body);
+    applyMarks();
     A.flipFrom(body, before);
     assertPendHidden();
   }
@@ -634,7 +659,7 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
     const timeout = lastReview?.timeout;
     const talk = (t) => lines.push(h('div', { class: 'ytalk plain' }, richCards(t)));
     if (timeout) talk(`Süren bitti, senin yerine oynadım: ${lastReview.better}.`);
-    return yanci.node({ lines, drink: cafe.node('y'), onTap: () => yanci.showHint(richCards(hintText(lc))), rich: richCards });
+    return yanci.node({ lines, drink: cafe.node('y'), onTap: () => { showMarks(); yanci.showHint(richCards(hintText(lc))); safeRender(); }, rich: richCards });
   }
   /** Yancının resmine dokununca: sıra sendeyse ne yapacağın, değilse oyunun gidişatı */
   function hintText(lc) {
@@ -699,6 +724,7 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
     ctx.adj = Array(players).fill(0);
     ctx.pend.clear();
     advice = null;
+    mark = null;
     lastReview = null;
     alive = true;
     tok = ++token;
@@ -741,6 +767,7 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
           if (lastReview && !timedOut && !spec.solo && !spec.chance && e.move.t !== 'bet') yanci.afterMine({ good: lastReview.good, betterLabel: advice.label });
           if (!tutorOn() && !timedOut) lastReview = null;
           advice = null;
+          mark = null;
         }
         timedOut = false;
         const before = state;

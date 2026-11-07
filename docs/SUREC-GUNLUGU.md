@@ -240,3 +240,7 @@ Kural (SERVIS-MANUELI): masadaki öğeler içerik değişince yükseklik değiş
 
 ## v1.10.2
 - Kullanıcı Spider'da kızlar kayıp sandı: kartlar kapalı destedeydi, boş sütun yüzünden dağıtım yapılamıyordu (kural). Düzeltme: desteye dokunup kart gelmezse nedeni yazılır ("Boş sütun varken dağıtılmaz: önce boş sütuna bir kart koy."); Spider destesi her dağıtım ayrı deste olarak, sola kaymış görünür; durum yazısı "destede N dağıtım". Aynı uyarı Solitaire ve Golf'te deste bitince de çıkar.
+
+## v1.11 — İpucu vurgusu, kaybolan sohbet
+- Kullanıcı: yancı öneride bulununca kartlar vurgulansın (Spider'da neyi nereye koyacağımızı görelim). → Şerif'e dokununca önerilen kart(lar) altın çerçeve, gideceği kart ya da boş yer kesik altın çizgi; 9 sn ya da hamle yapılınca kalkar. Yanıp sönme yok. Bütün oyunlarda (kart taşıyan hamleler); tek kişiliklerde taşınan dizi + hedef, deste önerisinde deste.
+- Kullanıcı: yancı mesajları ekranda sabit durmasın. → Sohbet sözü 6 sn sonra solup kaybolur; ipucu 9 sn.

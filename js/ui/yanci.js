@@ -36,6 +36,23 @@ export function createYanci(deps) {
   let hint = null; // { nodes, until }
   let richFn = (t) => t;
   let hintT = 0;
+  // Sohbet sözü ekranda sabit kalmaz: TALK_MS sonra solar ve kaybolur
+  const TALK_MS = 6000;
+  let talkUntil = 0;
+  let talkT = 0;
+  const talkLive = () => !!talk && performance.now() < talkUntil;
+  function fadeOut() {
+    if (!bubble?.isConnected || hint) return;
+    const outer = bubble.parentElement;
+    const done = () => {
+      if (hint || talkLive()) return;
+      bubble.replaceChildren();
+      outer.classList.add('empty');
+    };
+    const a = outer.animate?.([{ opacity: 1 }, { opacity: 0 }], { duration: 400 });
+    if (a) a.finished.then(done, done);
+    else done();
+  }
   const name = () => settings.get('yanciName') || YANCI_DEFAULT.name;
   const fill = (t, o = {}) => t.replace('{m}', o.m ?? '').replace('{n}', o.n ?? '');
 
@@ -46,6 +63,9 @@ export function createYanci(deps) {
     if (!force && now - lastSaid < 3500) return;
     lastSaid = now;
     talk = text;
+    talkUntil = now + TALK_MS;
+    clearTimeout(talkT);
+    talkT = setTimeout(fadeOut, TALK_MS);
     sfx.msg();
     if (bubble?.isConnected) {
       if (hint) return; // ipucu gösterilirken sohbet araya girmez
@@ -61,6 +81,7 @@ export function createYanci(deps) {
     on: () => true,
     reset() {
       talk = '';
+      talkUntil = 0;
       lastSaid = 0;
     },
     start() {
@@ -110,8 +131,8 @@ export function createYanci(deps) {
       hintT = setTimeout(() => {
         hint = null;
         if (bubble?.isConnected) {
-          bubble.replaceChildren(...(mode() === 'sohbet' && talk ? [h('div', { class: 'ytalk' }, talk)] : []));
-          if (!(mode() === 'sohbet' && talk)) bubble.parentElement.classList.add('empty');
+          if (mode() === 'sohbet' && talkLive()) bubble.replaceChildren(h('div', { class: 'ytalk' }, richFn(talk)));
+          else fadeOut();
         }
       }, 9000);
       if (bubble?.isConnected) {
@@ -129,7 +150,7 @@ export function createYanci(deps) {
       let content;
       if (hint && performance.now() < hint.until) content = [h('div', { class: 'ytalk plain' }, hint.nodes)];
       else if (lines.length) content = lines;
-      else content = mode() === 'sohbet' && talk ? [h('div', { class: 'ytalk' }, rich(talk))] : [];
+      else content = mode() === 'sohbet' && talkLive() ? [h('div', { class: 'ytalk' }, rich(talk))] : [];
       bubble = h('div', { class: 'ybin' }, content);
       const outer = h('div', { class: `ybubble${content.length ? '' : ' empty'}`, role: 'status' }, bubble);
       const mute = h('button', { class: `ymute${mode() === 'sessiz' ? ' on' : ''}`, type: 'button', title: mode() === 'sessiz' ? 'Konuşsun' : 'Sustur',
