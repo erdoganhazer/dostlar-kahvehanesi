@@ -37,6 +37,7 @@ const storage = createStorage('kartsalonu');
 const roster = new Roster(storage);
 const settings = new Settings(storage);
 initSfx(settings);
+queueMicrotask(() => applyBg()); // zemin rengi (BACKGROUNDS aşağıda tanımlı)
 document.title = 'Dostlar Kahvehanesi';
 loadDrinkFiles(); // assets/drinks/*.svg (kullanıcının düzenleyebildiği çizimler)
 
@@ -80,6 +81,28 @@ function h(tag, attrs = {}, ...kids) {
     el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
   }
   return el;
+}
+
+/** Zemin renkleri (tek renk, hafif ışık geçişi; çizgi yok). css: html[data-bg="…"] */
+const BACKGROUNDS = [
+  ['ceviz', 'Ceviz', '#3a2416'], ['findik', 'Fındık', '#5e4530'], ['bordo', 'Bordo', '#431219'], ['murdum', 'Mürdüm', '#321a38'],
+  ['gece', 'Gece mavisi', '#1a2740'], ['zumrut', 'Zümrüt', '#123a2f'], ['fume', 'Füme', '#2f3137'],
+];
+const applyBg = () => {
+  const v = settings.get('bg');
+  document.documentElement.dataset.bg = BACKGROUNDS.some(([k]) => k === v) ? v : 'ceviz';
+};
+function bgSection() {
+  const cur = settings.get('bg') || 'ceviz';
+  return h('div', { class: 'f bgsel' }, h('span', {}, 'Zemin rengi'),
+    h('div', { class: 'swatches' }, BACKGROUNDS.map(([k, label, c]) => h('button', {
+      class: `swatch${k === cur ? ' on' : ''}`, type: 'button', title: label, 'aria-label': label, style: `--c:${c}`,
+      onclick: () => {
+        settings.set('bg', k);
+        applyBg();
+        rs();
+      },
+    }, h('i', {}), h('span', {}, label)))));
 }
 
 /** Ayarlara göre kart arkası fotoğrafı (yoksa boş: bordo desen) */
@@ -275,6 +298,7 @@ function generalTab() {
         sel.addEventListener('change', () => settings.set('turnLimit', +sel.value));
         return sel;
       })()),
+      bgSection(),
       backSection(),
       h('label', { class: 'f' }, 'Kart görünümü', (() => {
         const sel = h('select', {}, [['buyuk', 'Büyük harfli (kolay okunur)'], ['klasik', 'Klasik (resimli)']].map(([v, l]) => h('option', { value: v, selected: settings.get('cardStyle') === v }, l)));
@@ -416,9 +440,12 @@ function screenAbout() {
 
 /* ---------- Yönlendirme (yalnızca düz #ad) ---------- */
 let cleanup = null;
+let guard = null; // oyun sürüyorsa true döner: çıkmadan önce sorulur
+let shown = null; // ekrandaki rota
 function screenKing() {
   const k = createKingScreen({ h, shell, avatarNode, cardEl, counter, roster, settings, go, dialog });
   cleanup = k.destroy;
+  guard = k.busy || null;
   return k.el;
 }
 // Ayar ekranındaki değişiklikler: normalde uygulamayı yeniden çizer; oyun içi ayar katmanında yalnız katmanı tazeler (oyun kapanmaz)
@@ -440,7 +467,7 @@ function openSettings(onClose) {
   document.body.append(ov);
 }
 const matchDeps = () => ({ h, shell, avatarNode, cardEl, counter, roster, settings, go, dialog, openSettings });
-const mk = (fn) => () => { const k = fn(matchDeps()); cleanup = k.destroy; return k.el; };
+const mk = (fn) => () => { const k = fn(matchDeps()); cleanup = k.destroy; guard = k.busy || null; return k.el; };
 const routes = { menu: screenMenu, ayarlar: screenSettings, hakkinda: screenAbout, king: screenKing,
   pisti: mk(createPistiScreen), papazkacti: mk(createPapazScreen), esek: mk(createEsekScreen), batak: mk(createBatakScreen), blackjack: mk(createBlackjackScreen), blof: mk(createBlofScreen), teksas: mk(createPokerScreen), fanti: mk(createFantiScreen), konken: mk(createKonkenScreen), gin: mk(createGinScreen), altmisalti: mk(createAltmisaltiScreen), yanik: mk(createYanikScreen), solitaire: mk(createSolitaireScreen), golf: mk(createGolfScreen), freecell: mk(createFreecellScreen), spider: mk(createSpiderScreen), kilic: mk(createKilicScreen), atyarisi: mk(createAtyarisiScreen), bakara: mk(createBakaraScreen), ucpoker: mk(createUcpokerScreen), savas: mk(createSavasScreen) };
 function current() {
@@ -453,7 +480,23 @@ function go(r) {
 }
 function render() {
   if (cleanup) { cleanup(); cleanup = null; }
-  app.replaceChildren(routes[current()]());
+  guard = null;
+  shown = current();
+  app.replaceChildren(routes[shown]());
 }
-addEventListener('hashchange', render);
+// Oyun sürerken geri (‹ düğmesi, Android geri tuşu, tarayıcı geri) → "Oyundan çıkılsın mı?"
+let leaving = false;
+function onRoute() {
+  const to = current();
+  if (!leaving && guard && shown && to !== shown && guard()) {
+    history.pushState(null, '', `#${shown}`); // adresi geri al, oyun ekranı yerinde kalsın
+    if (document.querySelector('.overlay.leaveask')) return;
+    dialog('Oyundan çıkılsın mı? Bu oyun yarıda kalır.', [['Çık', () => { leaving = true; location.hash = to; }], ['Oyuna dön']], 'Çıkış');
+    document.querySelector('.overlay:last-of-type')?.classList.add('leaveask');
+    return;
+  }
+  leaving = false;
+  render();
+}
+addEventListener('hashchange', onRoute);
 render();

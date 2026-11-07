@@ -868,7 +868,9 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
   }
 
   newGame(false);
-  return { el, destroy };
+  // yarıda çıkarken sorulsun mu? (oyun sürüyorsa evet)
+  const busy = () => alive && !!state && !spec.game.isOver(state);
+  return { el, destroy, busy };
 }
 
 /** Ortak koreografiler */

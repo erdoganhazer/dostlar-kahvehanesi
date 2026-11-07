@@ -72,6 +72,77 @@ export function createSolScreen(deps, opt) {
     ctx.render();
   }
 
+  // ---- Sürükle-bırak: açık kartı (altındakilerle birlikte) tutup gideceği sütuna bırak ----
+  let drag = null; // { ctx, pile, n, moves, els, sx, sy, moved }
+  let dragged = false;
+  function dragStart(ctx, pile, k, ev) {
+    if (!ctx.awaiting || ev.button > 0 || pile.id === 's') return;
+    const card = pile.cards[k];
+    if (!card?.up) return;
+    const n = pile.cards.length - k;
+    const moves = legal(ctx).filter((m) => m.t === 'mv' && m.from === pile.id && m.n === n);
+    if (!moves.length) return;
+    const ids = pile.cards.slice(k).map((x) => x.c);
+    const els = ids.map((id) => ctx.body.querySelector(`.solc[data-card="${CSS.escape(id)}"]`)).filter(Boolean);
+    drag = { ctx, pile, n, moves, els, sx: ev.clientX, sy: ev.clientY, moved: false, pid: ev.pointerId };
+    dragged = false;
+    addEventListener('pointermove', dragMove);
+    addEventListener('pointerup', dragEnd);
+    addEventListener('pointercancel', dragEnd);
+  }
+  function dragMove(ev) {
+    if (!drag || ev.pointerId !== drag.pid) return;
+    const dx = ev.clientX - drag.sx;
+    const dy = ev.clientY - drag.sy;
+    if (!drag.moved && Math.hypot(dx, dy) < 7) return;
+    if (!drag.moved) {
+      drag.moved = true;
+      drag.els.forEach((e, i) => {
+        e.dataset.z = e.style.zIndex;
+        e.style.zIndex = String(2000 + i);
+        e.classList.add('dragging');
+      });
+    }
+    drag.els.forEach((e) => (e.style.transform = `translate(${dx}px,${dy}px)`));
+    ev.preventDefault();
+  }
+  function dropTarget(ev, d) {
+    for (const e of document.elementsFromPoint(ev.clientX, ev.clientY)) {
+      if (d.els.some((x) => x === e || x.contains(e))) continue;
+      const host = e.closest?.('[data-pile]');
+      if (host && host.dataset.pile !== d.pile.id) return host.dataset.pile;
+    }
+    return null;
+  }
+  async function dragEnd(ev) {
+    if (!drag || ev.pointerId !== drag.pid) return;
+    removeEventListener('pointermove', dragMove);
+    removeEventListener('pointerup', dragEnd);
+    removeEventListener('pointercancel', dragEnd);
+    const d = drag;
+    drag = null;
+    if (!d.moved) return;
+    dragged = true;
+    setTimeout(() => (dragged = false), 0);
+    const to = ev.type === 'pointerup' ? dropTarget(ev, d) : null;
+    const m = to && d.moves.find((x) => x.to === to);
+    if (m && d.ctx.awaiting) {
+      // kartlar bırakıldığı yerden yerine kayar (snap bu konumu ölçer)
+      d.els.forEach((e) => e.classList.remove('dragging'));
+      return play(d.ctx, m);
+    }
+    // olmadı: kartlar geldiği yere geri kayar
+    await Promise.all(d.els.map((e) => {
+      const from = e.style.transform;
+      e.style.transform = '';
+      return e.animate([{ transform: from }, { transform: 'translate(0,0)' }], { duration: d.ctx.A.dur(220), easing: d.ctx.A.EASE.move }).finished.catch(() => {});
+    }));
+    d.els.forEach((e) => {
+      e.classList.remove('dragging');
+      e.style.zIndex = e.dataset.z || '';
+    });
+  }
+
   function tapSlot(ctx, pile) {
     if (!ctx.awaiting) return;
     if (pile.id === 's') return tapCard(ctx, pile, 0);
@@ -136,8 +207,13 @@ export function createSolScreen(deps, opt) {
           class: `solc${isSel ? ' sel' : ''}${tgt ? ' tgt' : ''}`,
           'data-card': card.c,
           'data-up': card.up ? '1' : '0',
+          'data-pile': p.id,
           style: `left:${x}px;top:${y}px;z-index:${p.fan === 'deals' ? 1 + (G - Math.floor(k / 10)) * 12 + (k % 10) : z++}`,
-          onclick: () => tapCard(ctx, p, k),
+          onclick: () => {
+            if (dragged) return; // sürüklemenin sonundaki tıklama sayılmaz
+            tapCard(ctx, p, k);
+          },
+          onpointerdown: (ev) => dragStart(ctx, p, k, ev),
         }, card.up ? ctx.cardEl(ctx.parseCard(card.c)) : ctx.cardEl(null));
         area.append(el);
         if (p.fan === 'down') y += Math.round(card.up ? g.up : g.down);

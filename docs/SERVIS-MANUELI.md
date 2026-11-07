@@ -150,3 +150,7 @@ Fotoğraf sınırı: 60 KB (validPhoto).
 ## v1.11
 - İpucu vurgusu: table-kit `mark` ({src, dst, piles}); `spec.hintMarks(move, state)` yoksa hamledeki `c`/`cards`/`card` (kaynak) ve `take` (hedef). Render sonrası `applyMarks()` sınıf ekler: `.hintsrc`, `.hintdst` (css sonunda). sol-table `hintMarks` yığın kimliğiyle (`data-pile`).
 - Yancı: `TALK_MS` (6 sn) sonra söz solar (`fadeOut`), `talkLive()`.
+## v1.12
+- Çıkış onayı: table-kit `busy()` (oyun sürüyor mu); app.js `guard` + `onRoute()` hashchange'i yakalar, `history.pushState` ile adresi geri alır, `.overlay.leaveask` sorar.
+- Zemin: `settings.bg`, app.js `BACKGROUNDS`, `applyBg()` → `html[data-bg]`; css `--bgA/--bgB/--bgC` ve `.window` radial-gradient. Yeni renk: BACKGROUNDS'a satır + css'e `html[data-bg=…]` satırı.
+- Sürükle: sol-table `dragStart/dragMove/dragEnd` (pointer olayları), hedef `elementsFromPoint` → `[data-pile]`; bırakınca FLIP o konumdan yerine kaydırır.

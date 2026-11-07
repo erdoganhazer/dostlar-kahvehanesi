@@ -244,3 +244,8 @@ Kural (SERVIS-MANUELI): masadaki öğeler içerik değişince yükseklik değiş
 ## v1.11 — İpucu vurgusu, kaybolan sohbet
 - Kullanıcı: yancı öneride bulununca kartlar vurgulansın (Spider'da neyi nereye koyacağımızı görelim). → Şerif'e dokununca önerilen kart(lar) altın çerçeve, gideceği kart ya da boş yer kesik altın çizgi; 9 sn ya da hamle yapılınca kalkar. Yanıp sönme yok. Bütün oyunlarda (kart taşıyan hamleler); tek kişiliklerde taşınan dizi + hedef, deste önerisinde deste.
 - Kullanıcı: yancı mesajları ekranda sabit durmasın. → Sohbet sözü 6 sn sonra solup kaybolur; ipucu 9 sn.
+
+## v1.12 — Çıkış onayı, zemin renkleri, sürükle-bırak
+- Kullanıcı: oyunda geriye basınca direkt kapanmasın, emin misiniz diye sorsun. → Oyun sürerken ‹ düğmesi, menüdeki Ana menü, Android/tarayıcı geri tuşu: "Oyundan çıkılsın mı? Bu oyun yarıda kalır." (Çık / Oyuna dön). Oyun bitmişse sormaz.
+- Kullanıcı: arka plan rengi modüler, çizgisiz tek renk, gradyan olabilir, şık. → Ayarlar > Genel > Zemin rengi: Ceviz (varsayılan), Fındık, Bordo, Mürdüm, Gece mavisi, Zümrüt, Füme. Üstten hafif ışık alan tek renk; ahşap çizgileri kalktı.
+- Kullanıcı: solitaire oyunlarında kartları sürükleyebilelim. → Dört tek kişilik oyunda açık kart (altındakilerle birlikte) tutulup sürüklenir, gideceği yere bırakılır; yanlış yere bırakılırsa geri kayar. Dokunma da çalışmaya devam eder.

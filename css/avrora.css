@@ -675,7 +675,8 @@ table.sheet th, table.sheet td { border: 1px solid #d8c8a4; }
 .solslot, .solc { position: absolute; width: var(--sw); height: var(--sh); box-sizing: border-box; }
 .solslot { border: 1.5px solid rgba(255,255,255,.22); border-radius: 6px; display: flex; align-items: center; justify-content: center;
   color: rgba(255,255,255,.32); font: 600 calc(var(--sw) * .36)/1 Georgia, serif; cursor: pointer; }
-.solc { cursor: pointer; transform-origin: 50% 50%; }
+.solc { cursor: pointer; transform-origin: 50% 50%; touch-action: none; }
+.solc.dragging { cursor: grabbing; } .solc.dragging .card { box-shadow: 0 8px 18px rgba(0,0,0,.55); }
 .solc .card { --card-w: var(--sw); --card-h: var(--sh); width: var(--sw); height: var(--sh); display: block; box-shadow: 0 1px 2px rgba(0,0,0,.45); }
 .solc.sel .card { box-shadow: 0 0 0 2px var(--gold, #e8c15a), 0 2px 6px rgba(0,0,0,.5); }
 .solc.tgt .card, .solslot.tgt { box-shadow: 0 0 0 2px rgba(232,193,90,.55); }
@@ -738,5 +739,20 @@ table.sheet th, table.sheet td { border: 1px solid #d8c8a4; }
 .hintsrc.card, .hintsrc > .card, .hintsrc .card { box-shadow: 0 0 0 3px #f2c94c, 0 4px 12px rgba(0,0,0,.55) !important; }
 .hintdst.card, .hintdst > .card, .hintdst .card { outline: 3px dashed #f2c94c; outline-offset: 2px; }
 .solslot.hintdst, .hintdst:not(.card):not(:has(.card)) { outline: 3px dashed #f2c94c; outline-offset: 2px; }
+
+/* ---- Zemin renkleri (Ayarlar > Zemin rengi): tek renk, üstten hafif ışık; çizgisiz ---- */
+html { --bgA: #5a3a24; --bgB: #3a2416; --bgC: #22140b; }
+html[data-bg="findik"] { --bgA: #8a6a4a; --bgB: #5e4530; --bgC: #3a2a1c; }
+html[data-bg="bordo"]  { --bgA: #7a2633; --bgB: #461420; --bgC: #250910; }
+html[data-bg="murdum"] { --bgA: #5e3466; --bgB: #351c3c; --bgC: #1c0f21; }
+html[data-bg="gece"]   { --bgA: #34507a; --bgB: #1c2a45; --bgC: #0d1526; }
+html[data-bg="zumrut"] { --bgA: #2a6e58; --bgB: #143f33; --bgC: #0a221b; }
+html[data-bg="fume"]   { --bgA: #575b64; --bgB: #33363c; --bgC: #1a1b1f; }
+html, body { background: var(--bgC); }
+.window { background: radial-gradient(120% 80% at 50% 0%, var(--bgA) 0%, var(--bgB) 55%, var(--bgC) 100%) fixed; background-color: var(--bgB); }
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 6px; }
+.swatch { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 4px; border-radius: 10px; border: 2px solid transparent; background: rgba(0,0,0,.12); color: inherit; font: 600 12px/1.1 inherit; cursor: pointer; }
+.swatch i { width: 34px; height: 34px; border-radius: 50%; background: radial-gradient(circle at 40% 30%, color-mix(in srgb, var(--c) 60%, #fff 25%), var(--c) 70%); box-shadow: 0 2px 4px rgba(0,0,0,.4); }
+.swatch.on { border-color: #e8c15a; }
 
 .pend, .kc.pend, .pc.pend { visibility: hidden !important; }
