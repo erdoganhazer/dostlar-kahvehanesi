@@ -237,3 +237,6 @@ Kural (SERVIS-MANUELI): masadaki öğeler içerik değişince yükseklik değiş
 - Kullanıcı kendi çizimlerini verdi ("telife girmiyor"): dört yüz kırpılıp assets/avatars/a1–a4.webp (256 px, beyaz zemin renkli zemine çevrildi). a1 Sezai, a2 Kartal, a3 Hilmi, a4 Şerif. Benim çizdiğim portraits.js kaldırıldı.
 - Ana menüdeki "3 oyuncu hazır. Aynı oyuncular tüm oyunlarda oturur." yazısı kaldırıldı.
 - Hata: v1.9.1'de eklenen satır içi yorum menü sıralamasını kapatmıştı → düzeltildi, gruplar yine alfabetik.
+
+## v1.10.2
+- Kullanıcı Spider'da kızlar kayıp sandı: kartlar kapalı destedeydi, boş sütun yüzünden dağıtım yapılamıyordu (kural). Düzeltme: desteye dokunup kart gelmezse nedeni yazılır ("Boş sütun varken dağıtılmaz: önce boş sütuna bir kart koy."); Spider destesi her dağıtım ayrı deste olarak, sola kaymış görünür; durum yazısı "destede N dağıtım". Aynı uyarı Solitaire ve Golf'te deste bitince de çıkar.

@@ -75,7 +75,8 @@ export function createSpiderScreen(deps) {
     game: spider,
     layout: LAYOUTS.spider,
     makeConfig: () => ({ suits: settings.get('spiderSuits') }),
-    status: (s) => `Dizi ${s.f.length}/8 · ${s.s.length / 10} dağıtım · ${NAMES[s.suits]}`,
+    status: (s) => `Dizi ${s.f.length}/8 · destede ${s.s.length / 10} dağıtım · ${NAMES[s.suits]}`,
+    noDraw: (s) => (s.s.length ? 'Boş sütun varken dağıtılmaz: önce boş sütuna bir kart koy.' : 'Destede dağıtılacak kart kalmadı.'),
     fmtScore: (sc) => `${sc}/8 dizi tamam`,
     mid(before, m, after) {
       // tamamlanan dizi önce sütunda görünsün, sonra kalksın
@@ -100,7 +101,7 @@ export function createSpiderScreen(deps) {
       'İki desteyle (104 kart) oynanır. Amaç: aynı renkten papazdan asa sekiz tam dizi kurmak; tamamlanan dizi masadan kalkar.',
       'Bir kart, rengi ne olursa olsun bir büyüğünün üstüne konur. Birlikte taşınacak kartlar ise aynı renkten sıralı olmalı.',
       'Boş sütuna her kart konur. Sütundaki kapalı kart, üstü boşalınca açılır.',
-      'Sağ üstteki desteye dokununca her sütuna birer kart dağıtılır (boş sütun varken dağıtılmaz).',
+      'Sağ üstteki desteye dokununca her sütuna birer kart dağıtılır. Destede her dağıtım ayrı durur, kaç tane kaldığı görünür. Boş sütun varken dağıtılmaz: önce boş sütuna bir kart koy.',
       'Zorluk menüden: tek renk, iki renk ya da dört renk.',
     ]),
   });

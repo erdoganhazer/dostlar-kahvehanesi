@@ -19,6 +19,17 @@ export function createSolScreen(deps, opt) {
   let sel = null; // { pile, n, moves }
   let autoOn = false;
   let geo = null; // son çizimin ölçüleri
+  let note = null; // kısa uyarı (ör. neden dağıtılmadı), birkaç saniye görünür
+  let noteT = 0;
+  const say = (ctx, text) => {
+    note = text;
+    clearTimeout(noteT);
+    noteT = setTimeout(() => {
+      note = null;
+      ctx.render();
+    }, 4000);
+    ctx.render();
+  };
 
   const legal = (ctx) => (ctx.awaiting ? opt.game.legalMoves(ctx.state, 0) : []);
 
@@ -33,6 +44,7 @@ export function createSolScreen(deps, opt) {
     if (pile.id === 's') {
       const d = L.find((m) => m.t === 'draw' || m.t === 'deal');
       if (d) play(ctx, d);
+      else say(ctx, opt.noDraw?.(ctx.state) || 'Destede kart kalmadı.');
       return;
     }
     // seçiliyken hedefe dokunma
@@ -113,15 +125,18 @@ export function createSolScreen(deps, opt) {
       let x = x0;
       const n = p.cards.length;
       const vis = p.fan === 'right' ? Math.max(0, n - (p.show || 3)) : 0;
+      const G = Math.ceil(n / 10);
       p.cards.forEach((card, k) => {
         if (p.fan === 'right' && k > vis) x += Math.round(g.cw * 0.24);
+        // Spider destesi: her dağıtım ayrı deste, sola doğru kaymış; sıradaki dağıtım en sağda ve üstte
+        if (p.fan === 'deals') x = x0 - Math.floor(k / 10) * Math.round(g.cw * 0.2);
         const isSel = sel && sel.pile === p.id && k >= n - sel.n;
         const tgt = targets.has(p.id) && k === n - 1;
         const el = h('div', {
           class: `solc${isSel ? ' sel' : ''}${tgt ? ' tgt' : ''}`,
           'data-card': card.c,
           'data-up': card.up ? '1' : '0',
-          style: `left:${x}px;top:${y}px;z-index:${z++}`,
+          style: `left:${x}px;top:${y}px;z-index:${p.fan === 'deals' ? 1 + (G - Math.floor(k / 10)) * 12 + (k % 10) : z++}`,
           onclick: () => tapCard(ctx, p, k),
         }, card.up ? ctx.cardEl(ctx.parseCard(card.c)) : ctx.cardEl(null));
         area.append(el);
@@ -191,6 +206,7 @@ export function createSolScreen(deps, opt) {
     rules: opt.rules,
     menu: opt.menu,
     reset() {
+      note = null;
       disp = null;
       sel = null;
       autoOn = false;
@@ -244,7 +260,7 @@ export function createSolScreen(deps, opt) {
       const L = ctx.awaiting ? opt.game.legalMoves(s, 0) : [];
       const canUndo = L.some((m) => m.t === 'undo');
       const auto = !autoOn && ctx.awaiting && opt.auto?.(st);
-      const msg = s.stuck ? (opt.stuckText?.(s) || 'Hamle kalmadı: geri al ya da bitir.') : opt.status(st);
+      const msg = note || (s.stuck ? (opt.stuckText?.(s) || 'Hamle kalmadı: geri al ya da bitir.') : opt.status(st));
       const tool = h('div', { class: 'soltool' },
         h('span', { class: 'solmsg' }, msg),
         auto ? h('button', { class: 'btn sm', onclick: () => {
@@ -299,7 +315,7 @@ export const LAYOUTS = {
     need: 2.4,
     piles: [
       ...s.f.map((run, i) => ({ id: `f${i}`, col: i, row: 0, cards: col([...run].reverse()), fan: 'stack' })),
-      { id: 's', col: 9, row: 0, cards: backs(s.s), fan: 'stack' },
+      { id: 's', col: 9, row: 0, cards: backs(s.s), fan: 'deals' },
       ...s.t.map((c, i) => ({ id: `t${i}`, col: i, row: 1, cards: c, fan: 'down' })),
     ],
   }),
