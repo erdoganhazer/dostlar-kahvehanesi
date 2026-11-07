@@ -126,7 +126,7 @@ export function createPistiScreen(deps) {
         h('div', { class: 'sub' }, `Puanın ${points[0]} · aldığın kart ${caps[0]}`));
       return [
         ctx.table({ area, info, count: (i) => sizes[i], chipSub: (i) => `${points[i]} puan` }),
-        ctx.handRow(hand, { can: () => my, onTap: (c, can) => can && ctx.respond({ c }) }),
+        ctx.handRow(hand, { can: () => my, onTap: (c, can) => can && ctx.respond({ c }), onDrop: (c) => (my ? (ctx.respond({ c }), true) : false) }),
       ];
     },
 

@@ -208,6 +208,12 @@ export function createAltmisaltiScreen(deps) {
         can: (c) => plays.has(c),
         selected,
         dim: my,
+        onDrop: (c) => {
+          if (!my || !plays.has(c)) return false;
+          selected = null;
+          ctx.respond({ t: 'play', c });
+          return true;
+        },
         onTap: (c, can) => {
           if (!my || !can) return;
           if (selected !== c && plays.size > 1) {

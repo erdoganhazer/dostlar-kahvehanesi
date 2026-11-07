@@ -147,7 +147,7 @@ export function createEsekScreen(deps) {
         h('div', { class: 'sub' }, `Aynı sayıdan dört kart topla · harfin: ${letters(0)}`));
       return [
         ctx.table({ area, info, count: (i) => (staged[i] ? 3 : 4), chipSub: (i) => `harf: ${letters(i)}` }),
-        ctx.handRow(hand, { can: () => my, onTap: (c, can) => can && ctx.respond({ t: 'pass', c }) }),
+        ctx.handRow(hand, { can: () => my, onTap: (c, can) => can && ctx.respond({ t: 'pass', c }), onDrop: (c) => (my ? (ctx.respond({ t: 'pass', c }), true) : false) }),
       ];
     },
 

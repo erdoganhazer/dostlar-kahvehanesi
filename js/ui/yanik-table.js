@@ -283,6 +283,13 @@ export function createYanikScreen(deps) {
         drag: true,
         can: () => my && v.phase === 'act',
         selected,
+        onDrop: (c) => {
+          const m = my && v.phase === 'act' && legal.find((x) => x.t === 'discard' && x.c === c);
+          if (!m) return false;
+          selected = null;
+          ctx.respond(m);
+          return true;
+        },
         onTap: (c, can) => {
           if (!can) return;
           if (selected === c) {

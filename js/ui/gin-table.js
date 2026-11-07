@@ -209,6 +209,12 @@ export function createGinScreen(deps) {
         can: (c) => my && v.phase === 'discard' && c !== v.took,
         dim: my && v.phase === 'discard',
         selected,
+        onDrop: (c) => {
+          if (!(my && v.phase === 'discard' && c !== v.took)) return false;
+          selected = null;
+          ctx.respond({ t: 'discard', c });
+          return true;
+        },
         onTap: (c, can) => {
           if (!can) return;
           if (selected !== c) {

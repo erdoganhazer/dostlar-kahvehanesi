@@ -183,6 +183,18 @@ export function createFantiScreen(deps) {
         ctx.handRow(hand, {
           can: () => my,
           selected,
+          onDrop: (c) => {
+            if (!my) return false;
+            const opts = optsOf(c);
+            picks = new Set();
+            if (opts.length > 1) {
+              selected = c; // birden çok alma seçeneği: kart kalkar, yerden alınacakları seçersin
+              return false;
+            }
+            selected = null;
+            ctx.respond(opts[0] || { c, take: [] });
+            return true;
+          },
           onTap: (c, can) => {
             if (!can) return;
             const opts = optsOf(c);

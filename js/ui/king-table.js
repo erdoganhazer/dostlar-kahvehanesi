@@ -163,6 +163,12 @@ export function createKingScreen(deps) {
         can: (c) => legal.has(c),
         selected,
         dim: myTurn,
+        onDrop: (c) => {
+          if (!myTurn || !legal.has(c)) return false;
+          selected = null;
+          ctx.respond({ t: 'play', c });
+          return true;
+        },
         onTap: (c, can) => {
           if (!myTurn || !can) return;
           if (selected !== c && legal.size > 1) {

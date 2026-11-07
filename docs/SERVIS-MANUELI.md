@@ -154,3 +154,4 @@ Fotoğraf sınırı: 60 KB (validPhoto).
 - Çıkış onayı: table-kit `busy()` (oyun sürüyor mu); app.js `guard` + `onRoute()` hashchange'i yakalar, `history.pushState` ile adresi geri alır, `.overlay.leaveask` sorar.
 - Zemin: `settings.bg`, app.js `BACKGROUNDS`, `applyBg()` → `html[data-bg]`; css `--bgA/--bgB/--bgC` ve `.window` radial-gradient. Yeni renk: BACKGROUNDS'a satır + css'e `html[data-bg=…]` satırı.
 - Sürükle: sol-table `dragStart/dragMove/dragEnd` (pointer olayları), hedef `elementsFromPoint` → `[data-pile]`; bırakınca FLIP o konumdan yerine kaydırır.
+- Elden masaya sürükleme: `handRow({..., onDrop(c)})` — oynandıysa true döndür. table-kit `dragable(btn, c, drop)`; bırakınca yukarı 70 px'ten fazla çekildiyse ya da `.center/.ktable` üstündeyse `drop`, olmazsa render (FLIP ile geri kayar).

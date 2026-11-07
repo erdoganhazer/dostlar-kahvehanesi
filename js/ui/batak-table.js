@@ -148,6 +148,12 @@ export function createBatakScreen(deps) {
         can: (c) => legal.has(c),
         selected,
         dim: myPlay,
+        onDrop: (c) => {
+          if (!myPlay || !legal.has(c)) return false;
+          selected = null;
+          ctx.respond({ t: 'play', c });
+          return true;
+        },
         onTap: (c, can) => {
           if (!myPlay || !can) return;
           if (selected !== c && legal.size > 1) {

@@ -174,6 +174,12 @@ export function createKonkenScreen(deps) {
         drag: true,
         can: () => my && v.phase === 'discard',
         selected,
+        onDrop: (c) => {
+          if (!(my && v.phase === 'discard')) return false;
+          selected = null;
+          ctx.respond({ t: 'discard', c });
+          return true;
+        },
         onTap: (c, can) => {
           if (!can) return;
           if (selected !== c) {

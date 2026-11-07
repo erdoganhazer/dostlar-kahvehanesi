@@ -417,7 +417,8 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
         h('span', { class: 'deckn' }, String(count)));
     },
     /** Elin: kart sayısına göre aralık ayarlanır (az kartta açılır, çok kartta üst üste biner). */
-    handRow(cards, { can = () => false, selected = null, dim = false, back = false, drag = false, onTap = () => {} } = {}) {
+    /** onDrop(c): kart masaya sürüklenince oyna; oynandıysa true döndür (yoksa kart yerine döner) */
+    handRow(cards, { can = () => false, selected = null, dim = false, back = false, drag = false, onTap = () => {}, onDrop = null } = {}) {
       // Kart genişliği CSS'teki --hand-w'den okunur (alçak yatay ekranda küçülür). Yatayda sağda 280 px yan sütun var.
       const cw = parseFloat(getComputedStyle(body).getPropertyValue('--hand-w')) || 68;
       const full = body.clientWidth || 380; // kaydırma çubuğu hariç
@@ -426,7 +427,7 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
       const n = cards.length;
       const step = n > 1 ? Math.min(cw + 8, (W - cw) / (n - 1)) : 0;
       const ml = Math.round(step - cw);
-      const row = h('div', { class: `khand${drag ? ' dragrow' : ''}`, style: `--ml:${ml}px` });
+      const row = h('div', { class: `khand${drag || onDrop ? ' dragrow' : ''}`, style: `--ml:${ml}px` });
       row.append(...cards.map((c) => {
         const ok2 = can(c);
         const b = h('button', {
@@ -438,7 +439,8 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
             onTap(c, ok2);
           },
         }, back ? cardEl(null) : cardEl(parseCard(c)));
-        if (drag && !back) dragable(b, c);
+        const dropFn = onDrop && !back && ok2 && ctx.awaiting ? (x) => onDrop(x) !== false && ok2 : null;
+        if ((drag || dropFn) && !back) dragable(b, c, dropFn);
         return b;
       }));
       return row;
@@ -504,7 +506,7 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
     const el = dragEl();
     if (!el || !drag?.moved) return;
     el.classList.add('dragging');
-    el.style.transform = `translate(${drag.dx}px, ${Math.min(0, drag.dy)}px)`;
+    el.style.transform = `translate(${drag.dx}px, ${drag.drop ? drag.dy : Math.min(0, drag.dy)}px)`;
   }
   function onDragMove(ev) {
     if (!drag || ev.pointerId !== drag.pid) return;
@@ -530,6 +532,17 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
       setTimeout(() => (el._dragged = false), 0);
     }
     const row = el?.closest('.khand');
+    // masaya sürüklendi: kartı oyna (yukarı yeterince çekildiyse ya da masanın üstünde bırakıldıysa)
+    if (d.drop && el) {
+      const overTable = document.elementsFromPoint(ev.clientX, ev.clientY).some((e) => e !== el && !el.contains(e) && e.closest?.('.center, .ktable'));
+      if (d.dy < -70 || overTable) {
+        if (d.drop(d.c)) return; // oynandı: kart bırakıldığı yerden uçar
+      }
+      if (!handOrder || d.dy < -40) {
+        render(); // olmadı: kart elindeki yerine kayar (FLIP)
+        return;
+      }
+    }
     if (!row || !handOrder) return;
     const rest = [...row.querySelectorAll('.kc')].filter((e) => e !== el);
     let idx = rest.findIndex((e) => {
@@ -545,10 +558,10 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
     if (body.querySelector('#fx .fxw') || document.querySelector('#fx .fxw')) safeRender();
     else render(); // FLIP: sürüklenen kart bırakıldığı yerden yuvasına kayar
   }
-  function dragable(btn, c) {
+  function dragable(btn, c, drop = null) {
     btn.addEventListener('pointerdown', (ev) => {
-      if (ev.button > 0 || !handOrder || drag) return;
-      drag = { c, sx: ev.clientX, sy: ev.clientY, dx: 0, dy: 0, moved: false, pid: ev.pointerId };
+      if (ev.button > 0 || (!handOrder && !drop) || drag) return;
+      drag = { c, sx: ev.clientX, sy: ev.clientY, dx: 0, dy: 0, moved: false, pid: ev.pointerId, drop };
       addEventListener('pointermove', onDragMove, { passive: false });
       addEventListener('pointerup', onDragEnd);
       addEventListener('pointercancel', onDragEnd);
