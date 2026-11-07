@@ -18,6 +18,7 @@ import { createChat } from './chat.js';
 import { createCafe } from './kahvehane.js';
 import { createYanci } from './yanci.js';
 import { sfx } from './sfx.js';
+import { PACE_OPTIONS, ANIM_OPTIONS } from '../players/settings.js';
 
 /** Yatay yerleşim (css/avrora.css'teki @media ile aynı koşul) */
 export const LANDSCAPE = matchMedia('(orientation: landscape) and (min-aspect-ratio: 5/4)');
@@ -241,11 +242,27 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
   // Üst çubuk: geri + başlık + ☰ menü (Skor, Kurallar, Yönerge, Yeni oyun)
   const dd = h('div', { class: 'dd', hidden: true });
   const closeDd = () => (dd.hidden = true);
+  // Hız: kart hızı (dağıtma/atma/kurpiye) ve botların düşünme süresi; oyun sürerken hemen geçerli
+  function speedDialog() {
+    const row = (title, key, opts, apply) => h('div', { class: 'f' }, h('span', {}, title),
+      h('div', { class: 'speedrow' }, opts.map((o) => h('button', {
+        class: `btn small${settings.get(key) === o.v ? ' on' : ''}`,
+        onclick: (ev) => {
+          settings.set(key, o.v);
+          apply?.(o.v);
+          ev.currentTarget.parentElement.querySelectorAll('.btn').forEach((b) => b.classList.toggle('on', b === ev.currentTarget));
+        },
+      }, o.label))));
+    dialog(h('div', { class: 'speedbox' },
+      row('Kart hızı (dağıtma, atma, kurpiye)', 'animSpeed', ANIM_OPTIONS, (v) => A.setPace(v)),
+      row('Botların düşünme hızı', 'paceMult', PACE_OPTIONS)), [['Tamam']], 'Hız');
+  }
   const item = (label, fn) => h('button', { onclick: () => { closeDd(); fn(); } }, label);
   dd.append(
     ...(spec.menu || []).map(([label, fn]) => item(label, () => fn(ctx))),
     item('Mola ver', () => pause()),
     ...(spec.yazboz === false ? [] : [item('Yazboz', () => showSheet())]),
+    item('Hız', () => speedDialog()),
     ...(openSettings ? [item('Ayarlar', () => {
       const was = paused;
       pause();
@@ -746,8 +763,9 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
     manual = false;
     spec.reset?.(ctx);
     cafe.start();
-    const mult = settings.get('paceMult');
-    A.setPace(mult);
+    // hızlar oyun sırasında da değişebilir (Ayarlar): her seferinde ayardan okunur
+    const mult = () => settings.get('paceMult');
+    A.setPace(settings.get('animSpeed'));
     const table = new Table({
       game: spec.game,
       seats,
@@ -755,9 +773,9 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
       config: { players, ...(spec.makeConfig ? spec.makeConfig(seats, roster) : {}) },
       pace: async (info, meta = {}) => {
         const seat = meta.seat ?? seats.indexOf(info);
-        startClock(seat, BOT_LIMIT * mult);
+        startClock(seat, BOT_LIMIT * mult());
         if ((meta.moves || []).length > 1) sfx.turnBot();
-        await A.sleep(thinkTime(info, (meta.moves || []).length <= 1, mult));
+        await A.sleep(thinkTime(info, (meta.moves || []).length <= 1, mult()));
         await whilePaused();
         guard();
       },

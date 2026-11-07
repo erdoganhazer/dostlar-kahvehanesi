@@ -755,4 +755,10 @@ html, body { background: var(--bgC); }
 .swatch i { width: 34px; height: 34px; border-radius: 50%; background: radial-gradient(circle at 40% 30%, color-mix(in srgb, var(--c) 60%, #fff 25%), var(--c) 70%); box-shadow: 0 2px 4px rgba(0,0,0,.4); }
 .swatch.on { border-color: #e8c15a; }
 
+.speedbox { display: flex; flex-direction: column; gap: 12px; text-align: left; }
+.speedbox .f > span { display: block; font-weight: 700; margin-bottom: 6px; }
+.speedrow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.speedrow .btn { padding: 8px 2px; font-size: 13px; opacity: .75; }
+.speedrow .btn.on { opacity: 1; box-shadow: 0 0 0 2px #e8c15a, 0 3px 0 #9a6b20; }
+
 .pend, .kc.pend, .pc.pend { visibility: hidden !important; }

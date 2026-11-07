@@ -1,9 +1,18 @@
 // Genel ayarlar (oyuncu adı, hız çarpanı). Bot ayarları roster.js'te.
-export const DEFAULT_SETTINGS = { humanName: 'Oyuncu', humanAvatar: 'a5', humanPhoto: '', paceMult: 1, kingEnds: true, pistiPlayers: 2, papazPlayers: 4, esekPlayers: 4, blackjackPlayers: 3, blofPlayers: 4, pokerPlayers: 4, fantiPlayers: 2, konkenPlayers: 4, yanikPlayers: 4, konkenScoring: 'ceza', konkenJoker: true, konkenCifte: true, tutor: true, chat: true, turnLimit: 30, cardStyle: 'buyuk', fourColor: false, backStyle: 'ks', backPhoto: '', cafe: true, myDrink: 'cay', wallet: 1000, yanciMode: 'sohbet', yanciName: 'Şerif', yanciAvatar: 'a4', yanciPhoto: '', sound: true, soundVol: 0.7, anger: true, solDraw: 1, spiderSuits: 1, bg: 'ceviz', tap2: false, atyarisiPlayers: 4, bakaraPlayers: 3, ucpokerPlayers: 3, savasPlayers: 3 };
+export const DEFAULT_SETTINGS = { humanName: 'Oyuncu', humanAvatar: 'a5', humanPhoto: '', paceMult: 1, kingEnds: true, pistiPlayers: 2, papazPlayers: 4, esekPlayers: 4, blackjackPlayers: 3, blofPlayers: 4, pokerPlayers: 4, fantiPlayers: 2, konkenPlayers: 4, yanikPlayers: 4, konkenScoring: 'ceza', konkenJoker: true, konkenCifte: true, tutor: true, chat: true, turnLimit: 30, cardStyle: 'buyuk', fourColor: false, backStyle: 'ks', backPhoto: '', cafe: true, myDrink: 'cay', wallet: 1000, yanciMode: 'sohbet', yanciName: 'Şerif', yanciAvatar: 'a4', yanciPhoto: '', sound: true, soundVol: 0.7, anger: true, solDraw: 1, spiderSuits: 1, bg: 'ceviz', tap2: false, animSpeed: 1, atyarisiPlayers: 4, bakaraPlayers: 3, ucpokerPlayers: 3, savasPlayers: 3 };
+// Botların düşünme süresi (çarpan)
 export const PACE_OPTIONS = [
+  { v: 0.3, label: 'Çok hızlı' },
   { v: 0.5, label: 'Hızlı' },
   { v: 1, label: 'Normal' },
   { v: 1.6, label: 'Yavaş' },
+];
+// Kart hızı: dağıtma, atma, kurpiyenin açması, toplama (animasyon süresi çarpanı)
+export const ANIM_OPTIONS = [
+  { v: 0.4, label: 'Çok hızlı' },
+  { v: 0.65, label: 'Hızlı' },
+  { v: 1, label: 'Normal' },
+  { v: 1.5, label: 'Yavaş' },
 ];
 
 export class Settings {
@@ -23,6 +32,7 @@ export class Settings {
   set(k, v) {
     if (k === 'humanName') v = String(v ?? '').trim().slice(0, 14) || DEFAULT_SETTINGS.humanName;
     if (k === 'paceMult') v = PACE_OPTIONS.some((o) => o.v === +v) ? +v : 1;
+    if (k === 'animSpeed') v = ANIM_OPTIONS.some((o) => o.v === +v) ? +v : 1;
     if (k === 'backPhoto') v = typeof v === 'string' && /^data:image\/(jpeg|png|webp);base64,/.test(v) && v.length < 150000 ? v : '';
     if (k === 'backStyle') v = ['ks', 'avatar', 'foto'].includes(v) ? v : 'ks';
     if (k === 'humanPhoto') v = typeof v === 'string' && /^data:image\/(jpeg|png|webp);base64,/.test(v) && v.length < 60000 ? v : '';

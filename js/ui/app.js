@@ -2,7 +2,8 @@
 import { createStorage } from '../core/storage.js';
 import { GAMES, GROUPS } from '../games/index.js';
 import { Roster, AVATARS, MAX_BOTS } from '../players/roster.js';
-import { Settings, PACE_OPTIONS } from '../players/settings.js';
+import { Settings, PACE_OPTIONS, ANIM_OPTIONS } from '../players/settings.js';
+import { setPace as setAnimPace } from './anim.js';
 import { cardFace, cardBack, cardJoker } from './card-art.js';
 import { LEVEL_NAMES, STYLE_NAMES, SPEED_NAMES } from '../players/bot.js';
 import { SUIT_SYMBOL, rankLabel, isRed } from '../core/cards.js';
@@ -284,6 +285,11 @@ function generalTab() {
   nameIn.addEventListener('change', () => (settings.set('humanName', nameIn.value), rs()));
   const pace = h('select', {}, PACE_OPTIONS.map((o) => h('option', { value: o.v, selected: o.v === settings.get('paceMult') }, o.label)));
   pace.addEventListener('change', () => settings.set('paceMult', +pace.value));
+  const anim = h('select', {}, ANIM_OPTIONS.map((o) => h('option', { value: o.v, selected: o.v === settings.get('animSpeed') }, o.label)));
+  anim.addEventListener('change', () => {
+    settings.set('animSpeed', +anim.value);
+    setAnimPace(settings.get('animSpeed')); // oyun sürerken de hemen geçerli
+  });
   const humanPicker = avatarPicker({ avatar: settings.get('humanAvatar'), photo: settings.get('humanPhoto') });
   const kingEnds = h('input', { type: 'checkbox', checked: settings.get('kingEnds') });
   kingEnds.addEventListener('change', () => settings.set('kingEnds', kingEnds.checked));
@@ -292,7 +298,8 @@ function generalTab() {
     { class: 'stack' },
     h('div', { class: 'panel stack' },
       h('label', { class: 'f' }, 'Adın', nameIn),
-      h('label', { class: 'f' }, 'Botların oynama hızı', pace),
+      h('label', { class: 'f' }, 'Botların düşünme hızı', pace),
+      h('label', { class: 'f' }, 'Kart hızı (dağıtma, atma, kurpiye)', anim),
       h('label', { class: 'f' }, 'Hamle süren (bitince önerilen hamle oynanır)', (() => {
         const sel = h('select', {}, [[30, '30 saniye'], [15, '15 saniye'], [0, 'Süre yok']].map(([v, l]) => h('option', { value: v, selected: +settings.get('turnLimit') === v }, l)));
         sel.addEventListener('change', () => settings.set('turnLimit', +sel.value));
