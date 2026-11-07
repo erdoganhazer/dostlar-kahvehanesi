@@ -158,26 +158,46 @@ export function createSolScreen(deps, opt) {
   function measure(ctx, L) {
     const body = ctx.body;
     const W = Math.max(280, (body.clientWidth || 380) - 16);
-    const H = Math.max(260, (body.clientHeight || 640) - 14 - 40 - 68 - 12);
+    // gerçek yükseklik: araç satırı ve yancı şeridi ölçülür (yoksa tahmin); masa yancının üstüne taşmamalı
+    const yH = body.querySelector(':scope > .yanci')?.offsetHeight || 68;
+    const tH = body.querySelector(':scope > .soltool')?.offsetHeight || 36;
+    const H = Math.max(220, (body.clientHeight || 640) - 14 - tH - yH - 14);
     const gap = Math.max(3, Math.min(10, Math.round(W / 90)));
-    // kart boyu oyun boyunca sabit: genişliğe ve oyunun olağan sütun boyuna (L.need, kart boyu cinsinden) göre
+    // kart boyu: genişliğe ve oyunun olağan sütun boyuna (L.need, kart boyu cinsinden) göre
     let cw = Math.floor((W - gap * (L.cols - 1)) / L.cols);
     cw = Math.min(cw, 100, Math.floor(H / 1.4 / (2.18 + (L.need || 2))));
-    const ch = Math.round(cw * 1.4);
-    const rowGap = Math.round(ch * 0.18);
-    const tabH = H - ch - rowGap;
-    let need = 0;
-    for (const p of L.piles) {
-      if (p.fan !== 'down' || p.cards.length < 2) continue;
-      let s = 0;
-      p.cards.slice(0, -1).forEach((x) => (s += x.up ? 0.31 : 0.12));
-      need = Math.max(need, s);
+    // sütunlar: açık / kapalı kart sayısı (son kart hariç)
+    const cols = L.piles.filter((p) => p.fan === 'down' && p.cards.length > 1).map((p) => {
+      const rest = p.cards.slice(0, -1);
+      const up = rest.filter((x) => x.up).length;
+      return { up, dn: rest.length - up };
+    });
+    const fit = (ch) => {
+      const tabH = H - ch - Math.round(ch * 0.18);
+      let U = 0.42 * ch; // yer varsa geniş aralık
+      let D = 0.12 * ch;
+      for (const c of cols) {
+        if (c.up) U = Math.min(U, (tabH - ch - c.dn * D) / c.up);
+      }
+      if (U < 0.24 * ch) {
+        D = 0.06 * ch; // önce kapalıları sıkıştır
+        U = 0.42 * ch;
+        for (const c of cols) if (c.up) U = Math.min(U, (tabH - ch - c.dn * D) / c.up);
+      }
+      return { U, D };
+    };
+    let ch = Math.round(cw * 1.4);
+    let { U, D } = fit(ch);
+    // hâlâ sığmıyorsa kartlar küçülür (sayı ve renk okunur kalsın: açık aralık en az 0.22 kart boyu)
+    for (let i = 0; i < 12 && U < 0.22 * ch && cw > 26; i++) {
+      cw = Math.floor(cw * 0.92);
+      ch = Math.round(cw * 1.4);
+      ({ U, D } = fit(ch));
     }
-    const k = need ? Math.min(1.35, (tabH - ch) / (need * ch)) : 1; // yer varsa biraz daha açılır
-    const up = Math.max(0.24, 0.31 * k) * ch; // açık kartın sayısı ve rengi her zaman görünür
-    const down = Math.max(0.05, 0.12 * Math.min(1, k * 1.3)) * ch;
+    U = Math.max(U, 0.16 * ch);
+    const rowGap = Math.round(ch * 0.18);
     const left = Math.floor((W - (L.cols * cw + (L.cols - 1) * gap)) / 2) + 8;
-    return { cw, ch, gap, rowGap, up, down, left, H };
+    return { cw, ch, gap, rowGap, up: U, down: D, left, H };
   }
 
   function draw(ctx) {
