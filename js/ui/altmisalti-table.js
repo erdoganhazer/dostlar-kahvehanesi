@@ -216,7 +216,7 @@ export function createAltmisaltiScreen(deps) {
         },
         onTap: (c, can) => {
           if (!my || !can) return;
-          if (selected !== c && plays.size > 1) {
+          if (deps.settings.get('tap2') && selected !== c && plays.size > 1) {
             selected = c;
             ctx.render();
             return;

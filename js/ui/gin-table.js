@@ -217,7 +217,7 @@ export function createGinScreen(deps) {
         },
         onTap: (c, can) => {
           if (!can) return;
-          if (selected !== c) {
+          if (deps.settings.get('tap2') && selected !== c) {
             selected = c;
             ctx.render();
             return;

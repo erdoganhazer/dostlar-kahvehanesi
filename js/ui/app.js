@@ -305,7 +305,7 @@ function generalTab() {
         sel.addEventListener('change', () => settings.set('cardStyle', sel.value));
         return sel;
       })()),
-      ...[['cafe', 'Kahvehane: oyuncuların yanında çay, kahve, oralet…'], ['fourColor', 'Dört renkli deste (karo mavi, sinek yeşil)'], ['chat', 'Sohbet: botlar konuşsun, laf soksun'], ['sound', 'Ses efektleri (kâğıt, sıra, süre, mesaj)'], ['anger', 'Kaybeden botlar sinirlensin']].map(([k, l]) => {
+      ...[['cafe', 'Kahvehane: oyuncuların yanında çay, kahve, oralet…'], ['fourColor', 'Dört renkli deste (karo mavi, sinek yeşil)'], ['chat', 'Sohbet: botlar konuşsun, laf soksun'], ['sound', 'Ses efektleri (kâğıt, sıra, süre, mesaj)'], ['anger', 'Kaybeden botlar sinirlensin'], ['tap2', 'Kartı iki dokunuşla oyna (yanlışlıkla atmayı önler)']].map(([k, l]) => {
         const cb = h('input', { type: 'checkbox', checked: settings.get(k) });
         cb.addEventListener('change', () => settings.set(k, cb.checked));
         return h('label', { class: 'row' }, cb, l);

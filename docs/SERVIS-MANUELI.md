@@ -155,3 +155,4 @@ Fotoğraf sınırı: 60 KB (validPhoto).
 - Zemin: `settings.bg`, app.js `BACKGROUNDS`, `applyBg()` → `html[data-bg]`; css `--bgA/--bgB/--bgC` ve `.window` radial-gradient. Yeni renk: BACKGROUNDS'a satır + css'e `html[data-bg=…]` satırı.
 - Sürükle: sol-table `dragStart/dragMove/dragEnd` (pointer olayları), hedef `elementsFromPoint` → `[data-pile]`; bırakınca FLIP o konumdan yerine kaydırır.
 - Elden masaya sürükleme: `handRow({..., onDrop(c)})` — oynandıysa true döndür. table-kit `dragable(btn, c, drop)`; bırakınca yukarı 70 px'ten fazla çekildiyse ya da `.center/.ktable` üstündeyse `drop`, olmazsa render (FLIP ile geri kayar).
+- `settings.tap2` (varsayılan false): true ise King/Batak/66/Konken/Gin/Yanık ilk dokunuşta seçer, ikincide oynar.

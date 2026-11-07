@@ -177,6 +177,20 @@ export function createBlofScreen(deps) {
       }
       out.push(ctx.handRow(hand, {
         selected: sel,
+        can: () => my && v.phase === 'play',
+        // masaya sürükle: seçtiklerin + sürüklediğin kart birlikte (en çok 4) kapalı atılır
+        onDrop: (c) => {
+          if (!my || v.phase !== 'play') return false;
+          const set = new Set(sel);
+          if (!set.has(c)) {
+            if (set.size >= 4) return false;
+            set.add(c);
+          }
+          const cards = hand.filter((x) => set.has(x));
+          sel = new Set();
+          ctx.respond({ t: 'play', cards });
+          return true;
+        },
         onTap: (c) => {
           if (!my || v.phase !== 'play') return;
           if (sel.has(c)) sel.delete(c);

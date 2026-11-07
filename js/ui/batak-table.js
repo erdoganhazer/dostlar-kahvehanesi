@@ -156,7 +156,7 @@ export function createBatakScreen(deps) {
         },
         onTap: (c, can) => {
           if (!myPlay || !can) return;
-          if (selected !== c && legal.size > 1) {
+          if (deps.settings.get('tap2') && selected !== c && legal.size > 1) {
             selected = c;
             ctx.render();
             return;

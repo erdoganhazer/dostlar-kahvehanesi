@@ -292,6 +292,15 @@ export function createYanikScreen(deps) {
         },
         onTap: (c, can) => {
           if (!can) return;
+          if (!deps.settings.get('tap2') && selected !== c) {
+            // tek dokunuş: kartın işlenecek yeri yoksa doğrudan at; varsa seç (yeri göstermek için)
+            const other = legal.some((m) => (m.t === 'add' || m.t === 'swap') && m.c.slice(0, -1) === c.slice(0, -1));
+            if (!other) {
+              selected = null;
+              ctx.respond({ t: 'discard', c });
+              return;
+            }
+          }
           if (selected === c) {
             // ikinci dokunuş: işlenecek yer yoksa at
             const other = legal.some((m) => (m.t === 'add' || m.t === 'swap') && m.c.slice(0, -1) === c.slice(0, -1));
