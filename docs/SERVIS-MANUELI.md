@@ -157,3 +157,4 @@ Fotoğraf sınırı: 60 KB (validPhoto).
 - Elden masaya sürükleme: `handRow({..., onDrop(c)})` — oynandıysa true döndür. table-kit `dragable(btn, c, drop)`; bırakınca yukarı 70 px'ten fazla çekildiyse ya da `.center/.ktable` üstündeyse `drop`, olmazsa render (FLIP ile geri kayar).
 - `settings.tap2` (varsayılan false): true ise King/Batak/66/Konken/Gin/Yanık ilk dokunuşta seçer, ikincide oynar.
 - Hız: `settings.animSpeed` (ANIM_OPTIONS) → `A.setPace` (animasyon süreleri); `settings.paceMult` (PACE_OPTIONS) botların düşünmesi, table-kit her hamlede ayardan okur. ☰ > Hız: `speedDialog()`.
+- Performans kuralı: telefonda `background-attachment: fixed`, sürekli animasyonlu `filter: blur`, SVG içinde `<image>` ve css `:has()` kullanma. Resim avatarlar `<img>`.

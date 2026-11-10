@@ -253,3 +253,10 @@ Kural (SERVIS-MANUELI): masadaki öğeler içerik değişince yükseklik değiş
 - Kullanıcı: kart atılan tüm oyunlara sürükleme; karta çift tıklamak yorucu. → Tek dokunuş oynar (King, Batak, 66, Konken, Gin; Yanık'ta işlenecek yeri yoksa atar). İsteyene Ayarlar'da "Kartı iki dokunuşla oyna" (tap2, varsayılan kapalı). Blöf'e de sürükleme: seçtiklerin + sürüklediğin kart birlikte atılır.
 - Kullanıcı: solitaire benzerlerinde sütun uzayınca Şerif'in mesajının üstüne geliyor. → sol-table measure: araç satırı ve yancı şeridi gerçek yüksekliğiyle ölçülür; her sütun için açık/kapalı aralığı hesaplanır, sığmazsa önce kapalılar sıkışır, yine sığmazsa kartlar küçülür. Masa yancının üstüne taşmaz.
 - Kullanıcı: kurpiye ve diğerlerinin kart atma hızı ayarlanabilir olmalı. → İki ayrı ayar: "Kart hızı" (dağıtma, atma, kurpiyenin açması, toplama; Çok hızlı/Hızlı/Normal/Yavaş) ve "Botların düşünme hızı" (Çok hızlı eklendi). Oyun içi ☰ menüsünde "Hız" penceresi; değişiklik oyun sürerken hemen geçerli.
+
+## v1.12.1 — Telefonda kasma
+- Kullanıcı: son güncellemeden beri telefonda çok kasıyor; dağıtma sesi bitiyor, animasyon sonra geliyor. Nedenler ve düzeltmeler:
+  - Zemin `background-attachment: fixed` + büyük radyal gradyan: telefonda her karede bütün ekran yeniden boyanıyordu → zemin body'de, fixed değil, `.window` saydam.
+  - a1–a4 avatarlar SVG içinde `<image>` idi: her çizimde (dağıtırken onlarca kez) resim yeniden çözülüyordu → düz `<img decoding=async>`.
+  - Çay buharında `filter: blur` sürekli animasyonla her karede boyama → blur yerine yumuşak gradyan, `will-change`.
+  - `:has()` seçicisi (ipucu vurgusu) kaldırıldı.

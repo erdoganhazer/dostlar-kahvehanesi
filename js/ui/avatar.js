@@ -42,9 +42,12 @@ export function avatarSvg(key) {
 export function avatarNode(photo, look) {
   const s = document.createElement('span');
   s.className = 'av';
-  if (photo) {
+  // a1–a4 çizim resimleri: <img> (tarayıcı çözülmüş resmi önbellekte tutar; SVG içindeki <image> her çizimde yeniden çözülüyordu)
+  const pic = !photo && PICS.includes(look) ? `assets/avatars/${look}.webp` : null;
+  if (photo || pic) {
     const i = document.createElement('img');
-    i.src = photo;
+    i.src = photo || pic;
+    i.decoding = 'async';
     i.alt = '';
     i.draggable = false;
     s.append(i);
