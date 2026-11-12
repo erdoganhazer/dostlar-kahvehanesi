@@ -767,4 +767,8 @@ body { background: radial-gradient(120% 70% at 50% 0%, var(--bgA) 0%, var(--bgB)
 .speedrow .btn { padding: 8px 2px; font-size: 13px; opacity: .75; }
 .speedrow .btn.on { opacity: 1; box-shadow: 0 0 0 2px #e8c15a, 0 3px 0 #9a6b20; }
 
+.verline { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; font-size: 12px; opacity: .85; margin: -4px 0 6px; }
+.verline .verok { color: #9be08a; }
+.verbtn { all: unset; cursor: pointer; background: #e8c15a; color: #2a1608; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+
 .pend, .kc.pend, .pc.pend { visibility: hidden !important; }

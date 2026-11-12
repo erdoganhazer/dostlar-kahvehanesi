@@ -205,6 +205,7 @@ function screenMenu() {
       'div',
       { class: 'felt menufelt' },
       brand(),
+      versionLine(),
       h('h2', {}, `Hoş geldin, ${settings.get('humanName')}`),
       GROUPS.flatMap(([gid, title]) => {
         // yapılacaklar (status 'soon') menüde görünmez (docs/HEDEF.md)
@@ -446,6 +447,7 @@ function screenAbout() {
 }
 
 /* ---------- Yönlendirme (yalnızca düz #ad) ---------- */
+const ver = { mine: null, net: null, busy: false }; // sürüm: cihazdaki / internetteki
 let cleanup = null;
 let guard = null; // oyun sürüyorsa true döner: çıkmadan önce sorulur
 let shown = null; // ekrandaki rota
@@ -506,4 +508,38 @@ function onRoute() {
   render();
 }
 addEventListener('hashchange', onRoute);
+
+// ---- Sürüm: cihazdaki (version.json, önbellekten) ve internetteki (version.json?net=…) ----
+function versionLine() {
+  if (!ver.mine) return null;
+  const newer = ver.net && ver.net.v !== ver.mine.v;
+  return h('div', { class: 'verline' },
+    h('span', {}, `Sürüm ${ver.mine.v} · ${ver.mine.date}`),
+    ver.net ? (newer
+      ? h('button', { class: 'verbtn', disabled: ver.busy, onclick: updateNow }, ver.busy ? 'Güncelleniyor…' : `Yeni sürüm ${ver.net.v} var · Güncelle`)
+      : h('span', { class: 'verok' }, '· güncel')) : null);
+}
+async function updateNow() {
+  ver.busy = true;
+  render();
+  try {
+    const reg = await navigator.serviceWorker?.getRegistration();
+    if (reg) {
+      const changed = new Promise((r) => navigator.serviceWorker.addEventListener('controllerchange', r, { once: true }));
+      await reg.update();
+      await Promise.race([changed, new Promise((r) => setTimeout(r, 8000))]);
+    }
+  } catch {}
+  location.reload();
+}
+const getJson = (url) => fetch(url).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+getJson('version.json').then((m) => {
+  ver.mine = m;
+  if (m && shown === 'menu') render();
+  return getJson(`version.json?net=${Date.now()}`);
+}).then((n) => {
+  if (!n) return;
+  ver.net = n;
+  if (shown === 'menu' && !guard) render();
+});
 render();

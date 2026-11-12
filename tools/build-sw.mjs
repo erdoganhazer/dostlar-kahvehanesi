@@ -3,10 +3,20 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { execSync } from 'child_process';
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const INCLUDE = ['index.html', 'manifest.webmanifest', 'css', 'js', 'assets'];
-const files = [];
+// Görünen sürüm: depo kayıt (commit) sayısı + tarih → version.json (ana menüde yazar; cihazdaki ile internetteki kıyaslanır)
+let count = 0;
+let when = new Date();
+try {
+  count = +execSync('git rev-list --count HEAD', { cwd: root }).toString().trim();
+  when = new Date(execSync('git log -1 --format=%cI', { cwd: root }).toString().trim());
+} catch {}
+const tr = new Intl.DateTimeFormat('tr-TR', { timeZone: 'Europe/Istanbul', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(when);
+fs.writeFileSync(path.join(root, 'version.json'), `${JSON.stringify({ v: count, date: tr })}\n`);
+const files = ['version.json'];
 const walk = (rel) => {
   const abs = path.join(root, rel);
   if (fs.statSync(abs).isDirectory()) for (const f of fs.readdirSync(abs).sort()) walk(path.join(rel, f));
