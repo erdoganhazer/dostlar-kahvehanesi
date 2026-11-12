@@ -74,9 +74,24 @@ export function point(el, w, h, rot = 0) {
  *       keep (inince katmanda bırak; çağıran kaldırır), flipTo (yarı yolda yüzünü değiştirecek öğe)
  */
 export function fly(node, from, to, opts = {}) {
-  if (!opts.silent) setTimeout(() => sfx.card(), Math.max(0, opts.delay || 0));
+  // Gecikmeli uçuş (dağıtım): uçan kart ancak sırası gelince oluşturulur. Eskiden 52 kartın hepsi baştan ekrana
+  // konup bekletiliyordu (52 ayrı katman): telefonda ekran kartı zorlanıyor, ses çalarken görüntü geride kalıyordu.
+  // Ses de uçuşun gerçekten başladığı anda çalar, ikisi ayrışmaz.
+  if (opts.delay > 0 && from && to) {
+    // yer tutucu (görünmez, katmansız): "uçuş sürüyor" denetimleri (#fx .fxw) bekleyen kartı da saysın
+    const hold = document.createElement('i');
+    hold.className = 'fxw';
+    hold.style.display = 'none';
+    layer().append(hold);
+    return new Promise((res) => setTimeout(() => {
+      hold.remove();
+      res(fly(node, from, to, { ...opts, delay: 0 }));
+    }, opts.delay));
+  }
+  if (!opts.silent) sfx.card();
   if (!from || !to) return Promise.resolve(null);
-  const { duration = dur('play'), easing = EASE.land, delay = 0, fadeEnd = false, keep = false, flipTo = null } = opts;
+  const { duration = dur('play'), easing = EASE.land, fadeEnd = false, keep = false, flipTo = null } = opts;
+  const delay = 0;
   const wrap = document.createElement('div');
   wrap.className = 'fxw';
   wrap.style.cssText = `left:${to.cx - to.w / 2}px;top:${to.cy - to.h / 2}px;width:${to.w}px;height:${to.h}px;--card-w:${to.w}px;--card-h:${to.h}px`;
