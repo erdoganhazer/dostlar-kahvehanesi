@@ -36,6 +36,14 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
   let pending = null;
   let rejectPending = null;
   const body = h('div', { class: 'felt king' });
+  // Kart ölçüleri (css değişkenleri) bir kez okunur; yalnız ekran boyutu değişince yeniden okunur.
+  // (Eskiden her kart için getComputedStyle çağrılıyordu: her çizimde onlarca zorunlu stil hesabı.)
+  const cssCache = new Map();
+  const cssNum = (name, dflt) => {
+    if (!cssCache.has(name)) cssCache.set(name, parseFloat(getComputedStyle(body).getPropertyValue(name)) || dflt);
+    return cssCache.get(name);
+  };
+  addEventListener('resize', () => cssCache.clear());
   // ---- Süre halkası (online hissi): sırası gelenin avatarının çevresinde azalır ----
   const BOT_LIMIT = 12000; // görsel süre; bot bunun bir kısmında oynar
   let clock = null; // { seat, start, dur, last, onTimeout, nudged }
@@ -48,11 +56,16 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
       if (clock.last != null && document.querySelector('.overlay, .setov')) clock.start += now - clock.last; // pencere açıkken durur
       clock.last = now;
       const t = Math.max(0, 1 - (now - clock.start) / clock.dur);
-      const el = body.querySelector(`.ks[data-seat="${clock.seat}"] .avw`);
-      if (el) {
-        el.classList.add('clock');
-        el.style.setProperty('--t', t.toFixed(3));
-        el.style.setProperty('--c', t < 0.25 ? '#ff5a3c' : t < 0.5 ? '#ffb02e' : '#7be05a');
+      // Halka saniyede en çok 8 kez çizilir: her karede stil + boyama telefonu yoruyordu (kart uçuşları takılıyordu)
+      if (!clock.drawn || now - clock.drawn >= 125 || !clock.el?.isConnected) {
+        clock.drawn = now;
+        if (!clock.el?.isConnected) clock.el = body.querySelector(`.ks[data-seat="${clock.seat}"] .avw`);
+        const el = clock.el;
+        if (el) {
+          el.classList.add('clock');
+          el.style.setProperty('--t', t.toFixed(3));
+          el.style.setProperty('--c', t < 0.25 ? '#ff5a3c' : t < 0.5 ? '#ffb02e' : '#7be05a');
+        }
       }
       // süre azalıyor: son 5 saniyede her saniye tik (son 3'te daha tiz)
       if (clock.seat === 0 && clock.onTimeout) {
@@ -408,7 +421,7 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
     /** Masadaki tek kart (statik): merkezden dx,dy kayık, rot açılı. */
     pileCard(c, { dx = 0, dy = 0, rot = 0, z = 1, back = false } = {}) {
       // Ofsetler 52 px'lik kart için yazıldı; masa kartı büyüyünce (--tc-w) aynı oranda açılır
-      const k = (parseFloat(getComputedStyle(body).getPropertyValue('--tc-w')) || 52) / 52;
+      const k = cssNum('--tc-w', 52) / 52;
       dx = Math.round(dx * k);
       dy = Math.round(dy * k);
       return h('div', {
@@ -437,7 +450,7 @@ export function createMatchScreen({ h, shell, avatarNode, cardEl, roster, settin
     /** onDrop(c): kart masaya sürüklenince oyna; oynandıysa true döndür (yoksa kart yerine döner) */
     handRow(cards, { can = () => false, selected = null, dim = false, back = false, drag = false, onTap = () => {}, onDrop = null } = {}) {
       // Kart genişliği CSS'teki --hand-w'den okunur (alçak yatay ekranda küçülür). Yatayda sağda 280 px yan sütun var.
-      const cw = parseFloat(getComputedStyle(body).getPropertyValue('--hand-w')) || 68;
+      const cw = cssNum('--hand-w', 68);
       const full = body.clientWidth || 380; // kaydırma çubuğu hariç
       const side = 0; // yatayda yan sütun yok (v1.2)
       const W = (LANDSCAPE.matches ? full - side : Math.min(full, 560)) - 12;

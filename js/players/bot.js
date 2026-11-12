@@ -44,11 +44,29 @@ export class Bot {
     return (SPEED_MS[this.profile.speed] ?? 700) * mult;
   }
 
+  /**
+   * Oyunda kullanılan sürüm: Monte Carlo hesabı küçük dilimlerde (≈8 ms) yapılır, arada tarayıcıya nefes verilir.
+   * (Eskiden tek parça çalışıyordu: telefonda yarım saniyeyi bulan donmalar, kart uçuşlarının sesten geri kalması.)
+   */
   async choose(ctx) {
-    return this.chooseSync(ctx);
+    const { game, view, moves } = ctx;
+    const canMC = moves.length > 1 && this.profile.level === 3 && game.determinize && (!game.mcPhase || game.mcPhase(view));
+    if (!canMC) return this.chooseSync(ctx);
+    const gen = this.mcGen(ctx);
+    const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
+    let t0 = now();
+    let r = gen.next();
+    while (!r.done) {
+      if (now() - t0 > 8) {
+        await new Promise((res) => setTimeout(res, 0));
+        t0 = now();
+      }
+      r = gen.next();
+    }
+    return this.chooseSync(ctx, r.value);
   }
 
-  chooseSync({ game, view, moves, seat, rng }) {
+  chooseSync({ game, view, moves, seat, rng }, mcDone = null) {
     if (moves.length === 1) return moves[0];
     const level = this.profile.level;
     const canMC = level === 3 && game.determinize && (!game.mcPhase || game.mcPhase(view));
@@ -59,7 +77,7 @@ export class Bot {
     const ratings = game.rateMove ? moves.map((m) => game.rateMove(view, m, ctx)) : moves.map(() => 0);
 
     if (canMC) {
-      const mc = this.monteCarlo({ game, view, moves, seat, rng });
+      const mc = mcDone || this.monteCarlo({ game, view, moves, seat, rng });
       let best = 0;
       let bestV = -Infinity;
       moves.forEach((_, i) => {
@@ -87,7 +105,15 @@ export class Bot {
   }
 
   /** Zor seviye: görünmeyen kartları rastgele dağıtıp hamleleri simülasyonla puanlar. */
-  monteCarlo({ game, view, moves, seat, rng }) {
+  monteCarlo(args) {
+    const gen = this.mcGen(args);
+    let r = gen.next();
+    while (!r.done) r = gen.next();
+    return r.value;
+  }
+
+  /** Monte Carlo'nun dilimlenebilir hâli: her dünya (deneme) sonunda bir kez durur. */
+  *mcGen({ game, view, moves, seat, rng }) {
     const key = game.moveKey || defaultMoveKey;
     const perMove = Math.max(20, Math.min(150, Math.floor((this.profile.mcBudget ?? 400) / moves.length)));
     const util = (s) => (game.utility ? game.utility(s, seat) : defaultUtility(game, s, seat));
@@ -112,6 +138,7 @@ export class Bot {
         }
         totals[i] += util(s);
       });
+      yield;
     }
     return totals.map((t) => t / perMove);
   }

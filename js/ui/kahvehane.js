@@ -241,13 +241,14 @@ export function createCafe(deps) {
 
   // İçecek öğeleri her çizimde yeniden yaratılmaz: aynı öğe yeni çizime taşınır, yalnız seviye değişince bardak tazelenir.
   // Buhar Web Animations ile döner (CSS animasyonu öğe taşınınca baştan başlardı).
+  // Yalnız taze doldurulan içecek tüter (~20 sn), sonra durur: sürekli dönen animasyon telefonda kart uçuşlarını takıyordu.
   const els = {};
   function steamEl(k) {
     const s = h('i', { class: `steam s${k}` });
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      s.animate([{ transform: 'translateY(4px) scaleY(.6)', opacity: 0 }, { opacity: 0.75, offset: 0.4 }, { transform: 'translateY(-9px) scaleY(1.3)', opacity: 0 }],
-        { duration: 2600, iterations: Infinity, delay: k === 2 ? 1300 : 0, easing: 'ease-in-out' });
-    }
+      s.animate([{ transform: 'translateY(4px) scaleY(.6)', opacity: 0 }, { transform: 'translateY(-1px) scaleY(.9)', opacity: 0.75, offset: 0.4 }, { transform: 'translateY(-9px) scaleY(1.3)', opacity: 0 }],
+        { duration: 2600, iterations: 7, delay: k === 2 ? 1300 : 0, easing: 'ease-in-out' }).finished.then(() => s.remove(), () => {});
+    } else s.remove();
     return s;
   }
   /** Oyuncu kutusuna takılacak içecek öğesi; dokununca ısmarlama (kendine/herkese ya da yalnız o kişiye) */
@@ -274,7 +275,11 @@ export function createCafe(deps) {
       c.lvl = lvl;
       c.cup.innerHTML = drinkSvg(d.type, d.level, `dk${i}`);
     }
-    if (hot && !c.steam) {
+    const fresh = c.seen == null || d.level > c.seen + 0.2 || c.seenType !== d.type; // yeni geldi ya da tazelendi
+    c.seen = d.level;
+    c.seenType = d.type;
+    if (hot && fresh) {
+      c.steam?.forEach((s) => s.remove());
       c.steam = [steamEl(1), steamEl(2)];
       c.el.append(...c.steam);
     } else if (!hot && c.steam) {

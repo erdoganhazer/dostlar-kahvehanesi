@@ -123,7 +123,7 @@ input[type=text], select { font: inherit; min-height: 40px; padding: 6px 8px; bo
 .kc.sel { transform: translateY(-16px); }
 .kc.dim .card { filter: brightness(.6); }
 .pickrow { position: absolute; left: 0; right: 0; bottom: 24px; padding: 0; min-height: 0; z-index: 35; }
-.pickrow .kc .card { width: 52px; height: 74px; }
+.pickrow .kc .card { --card-w: 52px; --card-h: 74px; width: 52px; height: 74px; }
 
 /* Rakibin elindeki kart sayısı: küçük kapalı kartlar */
 .mini { display: flex; justify-content: center; height: 24px; margin: 2px 0; }
@@ -461,9 +461,11 @@ table.sheet th, table.sheet td { border: 1px solid #d8c8a4; }
   .announce .btn { min-height: 34px; padding: 4px; }
 }
 /* ======================================================================================
-   KART TASARIMI v2 (js/ui/card-art.js). Ölçüler cqw: kartın kendi genişliğine göre.
+   KART TASARIMI v2 (js/ui/card-art.js). Ölçüler --u (kart genişliğinin %1'i) ile: kartın kendi genişliğine göre.
    ====================================================================================== */
-.card.face, .card.back { container-type: inline-size; }
+/* --u = kart genişliğinin %1'i. Eskiden container query (cqw) idi: her kart ayrı kapsayıcı olunca telefonda her çizimde
+   stil hesabı çok pahalıydı (kasma). Kart genişliği her yerde --card-w ile verilir. */
+.card.face, .card.back { --u: calc(var(--card-w) / 100); }
 .card.face { background: linear-gradient(180deg, #ffffff, #f2f0eb); color: #16161a; border: 1px solid #8f8a80; border-radius: 7px; overflow: hidden;
   box-shadow: -1px 0 0 rgba(0,0,0,.18), 1px 2px 4px rgba(0,0,0,.4); font-family: 'Roboto Slab', Georgia, serif; }
 /* basılı kart hissi: ince iç çerçeve */
@@ -473,30 +475,30 @@ table.sheet th, table.sheet td { border: 1px solid #d8c8a4; }
 .card.face.four.s-D { color: #1662c4; }
 .card.face.four.s-C { color: #12803a; }
 /* Sol üst: büyük harf ve hemen altında renk (üst üste binen elde ikisi birlikte okunur) */
-.card.face .ix { position: absolute; top: 4cqw; left: 5cqw; width: 36cqw; display: flex; flex-direction: column; align-items: center; }
-.card.face .fr { font-size: 40cqw; font-weight: 800; line-height: .95; letter-spacing: -1cqw; }
-.card.face .fr.two { font-size: 40cqw; letter-spacing: -2.5cqw; transform: scaleX(.78); transform-origin: 50% 50%; white-space: nowrap; } /* 10: diğerleriyle aynı boy, yatayda sıkışık */
-.card.face .fs { width: 22cqw; height: 22cqw; margin-top: 2cqw; display: block; }
+.card.face .ix { position: absolute; top: calc(4 * var(--u)); left: calc(5 * var(--u)); width: calc(36 * var(--u)); display: flex; flex-direction: column; align-items: center; }
+.card.face .fr { font-size: calc(40 * var(--u)); font-weight: 800; line-height: .95; letter-spacing: calc(-1 * var(--u)); }
+.card.face .fr.two { font-size: calc(40 * var(--u)); letter-spacing: calc(-2.5 * var(--u)); transform: scaleX(.78); transform-origin: 50% 50%; white-space: nowrap; } /* 10: diğerleriyle aynı boy, yatayda sıkışık */
+.card.face .fs { width: calc(22 * var(--u)); height: calc(22 * var(--u)); margin-top: calc(2 * var(--u)); display: block; }
 .card.face svg { width: 100%; height: 100%; display: block; }
 /* Ortada büyük renk işareti (sağa yaslı: sol şerit kapansa da görünür kalsın diye değil, denge için) */
-.card.face .fc { position: absolute; right: 9cqw; bottom: 8cqw; width: 52cqw; height: 52cqw; }
+.card.face .fc { position: absolute; right: calc(9 * var(--u)); bottom: calc(8 * var(--u)); width: calc(52 * var(--u)); height: calc(52 * var(--u)); }
 /* Resimli kartlar: krem zemin, ortada amblem, sağ altta küçük renk */
 .card.face.court { background: linear-gradient(180deg, #fffaf0, #f3e7cc); }
-.card.face.court .fc { width: 50cqw; height: 50cqw; right: 10cqw; bottom: 14cqw; }
-.card.face .fsm { position: absolute; right: 6cqw; bottom: 4cqw; width: 16cqw; height: 16cqw; }
+.card.face.court .fc { width: calc(50 * var(--u)); height: calc(50 * var(--u)); right: calc(10 * var(--u)); bottom: calc(14 * var(--u)); }
+.card.face .fsm { position: absolute; right: calc(6 * var(--u)); bottom: calc(4 * var(--u)); width: calc(16 * var(--u)); height: calc(16 * var(--u)); }
 /* Joker */
 .card.face.joker { color: #6b2a9e; background: linear-gradient(180deg, #fffaf0, #efe2f7); }
-.card.face.joker .jk { position: absolute; top: 5cqw; left: 6cqw; writing-mode: vertical-rl; font-family: 'Roboto Slab', serif; font-weight: 800; font-size: 15cqw; letter-spacing: 1cqw; }
-.card.face.joker .fc { width: 56cqw; height: 56cqw; right: 8cqw; bottom: 12cqw; color: #c8102e; }
+.card.face.joker .jk { position: absolute; top: calc(5 * var(--u)); left: calc(6 * var(--u)); writing-mode: vertical-rl; font-family: 'Roboto Slab', serif; font-weight: 800; font-size: calc(15 * var(--u)); letter-spacing: calc(1 * var(--u)); }
+.card.face.joker .fc { width: calc(56 * var(--u)); height: calc(56 * var(--u)); right: calc(8 * var(--u)); bottom: calc(12 * var(--u)); color: #c8102e; }
 /* Arkalık: bordo zemin, altın baklava deseni, krem çerçeve, ortada KS */
 .card.back { background-color: #7a1418; background-image:
     repeating-linear-gradient(45deg, rgba(255,215,122,.22) 0 1px, transparent 1px 7px),
     repeating-linear-gradient(-45deg, rgba(255,215,122,.22) 0 1px, transparent 1px 7px),
     radial-gradient(ellipse at 50% 40%, #9a1c22, #5a0c10);
   border: 3px solid #f6ecd6; outline: 1px solid #8f8a80; border-radius: 7px; box-shadow: -1px 0 0 rgba(0,0,0,.18), 1px 2px 4px rgba(0,0,0,.4); overflow: hidden; }
-.card.back .bk { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 46cqw; height: 46cqw; border-radius: 50%;
+.card.back .bk { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: calc(46 * var(--u)); height: calc(46 * var(--u)); border-radius: 50%;
   display: flex; align-items: center; justify-content: center; background: #f6ecd6; color: #7a1418; border: 2px solid #d9a640;
-  font-family: 'Roboto Slab', Georgia, serif; font-weight: 800; font-size: 17cqw; letter-spacing: -1cqw; }
+  font-family: 'Roboto Slab', Georgia, serif; font-weight: 800; font-size: calc(17 * var(--u)); letter-spacing: calc(-1 * var(--u)); }
 .card.img + .bk { display: none; }
 /* Oynanamayan kart: soldurma yok, zemin hafif koyulaşır (yazı okunur kalır) */
 .kc.dim .card { filter: none; }
@@ -526,7 +528,9 @@ table.sheet th, table.sheet td { border: 1px solid #d8c8a4; }
 .ypanel .btn { min-height: 38px; font-size: 13px; padding: 4px 6px; }
 /* Kahvehane: içecekler oyuncu kutusunun yanında (js/ui/kahvehane.js) */
 .ks { position: relative; }
-.drink { position: absolute; width: 30px; height: 40px; pointer-events: none; z-index: 6; filter: drop-shadow(0 2px 2px rgba(0,0,0,.5)); }
+.drink { position: absolute; width: 30px; height: 40px; pointer-events: none; z-index: 6; }
+/* gölge yalnız bardakta: buhar da gölgenin içindeyken her karede bütün içecek yeniden boyanıyordu */
+.drink .cup { filter: drop-shadow(0 2px 2px rgba(0,0,0,.5)); }
 .drink svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .ks-top .drink { right: -36px; bottom: -4px; }
 .ks-bottom .drink { left: -38px; bottom: -2px; }
@@ -685,10 +689,10 @@ table.sheet th, table.sheet td { border: 1px solid #d8c8a4; }
 .felt.king.sol > .yanci { margin-top: auto; }
 
 /* üst üste binen kartta sayı ile rengi yan yana: kartın üst şeridinde ikisi de okunur */
-.solc .card.face .ix { flex-direction: row; align-items: center; width: auto; gap: 2cqw; top: 3cqw; left: 6cqw; }
-.solc .card.face .fr { font-size: 34cqw; }
-.solc .card.face .fr.two { font-size: 34cqw; transform-origin: 0 50%; margin-right: -7cqw; }
-.solc .card.face .fs { width: 24cqw; height: 24cqw; margin-top: 0; }
+.solc .card.face .ix { flex-direction: row; align-items: center; width: auto; gap: calc(2 * var(--u)); top: calc(3 * var(--u)); left: calc(6 * var(--u)); }
+.solc .card.face .fr { font-size: calc(34 * var(--u)); }
+.solc .card.face .fr.two { font-size: calc(34 * var(--u)); transform-origin: 0 50%; margin-right: calc(-7 * var(--u)); }
+.solc .card.face .fs { width: calc(24 * var(--u)); height: calc(24 * var(--u)); margin-top: 0; }
 
 /* ---- Kılıç ---- */
 .center.kilic .kilicnamed { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; z-index: 30; }

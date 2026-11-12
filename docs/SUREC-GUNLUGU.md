@@ -260,3 +260,12 @@ Kural (SERVIS-MANUELI): masadaki öğeler içerik değişince yükseklik değiş
   - a1–a4 avatarlar SVG içinde `<image>` idi: her çizimde (dağıtırken onlarca kez) resim yeniden çözülüyordu → düz `<img decoding=async>`.
   - Çay buharında `filter: blur` sürekli animasyonla her karede boyama → blur yerine yumuşak gradyan, `will-change`.
   - `:has()` seçicisi (ipucu vurgusu) kaldırıldı.
+
+## v1.12.2 — Telefonda kasma, ikinci tur (12.11.2026)
+- Kullanıcının teşhisi: kart boyunu çözünürlüğe göre ayarlayan altyapı kasıyor. Ölçümle (telefon benzetimi, 6 kat yavaş işlemci) doğrulandı, başka nedenler de çıktı:
+  - Kart içi ölçüler container query (cqw) idi, her kart ayrı kapsayıcıydı → `--u = --card-w / 100` ile düz hesap. King'de stil hesabı yarıya indi.
+  - Her masa kartı ve el çizimi için `getComputedStyle` çağrılıyordu → ölçüler bir kez okunur, ekran boyutu değişince yenilenir.
+  - Süre halkası her karede (saniyede 60) stil değiştirip boyatıyordu → saniyede 8.
+  - Çay buharı sonsuz dönüyordu ve içeceğin gölge filtresinin içindeydi (her karede boyama) → gölge yalnız bardakta; buhar yalnız taze gelen/tazelenen içecekte ~20 sn.
+  - Zor seviye botun Monte Carlo hesabı tek parça çalışıp ekranı 100–900 ms donduruyordu (ses çalar, kart sonra gelir) → 8 ms'lik dilimlerde, arada tarayıcıya nefes.
+- Sonuç (benzetim, King ilk 8 sn): ana iş parçacığı yükü 4,3 sn → 2,4 sn; en uzun donma 700–1000 ms → ~170 ms.
