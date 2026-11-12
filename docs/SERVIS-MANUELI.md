@@ -160,3 +160,5 @@ Fotoğraf sınırı: 60 KB (validPhoto).
 - Performans kuralı: telefonda `background-attachment: fixed`, sürekli animasyonlu `filter: blur`, SVG içinde `<image>` ve css `:has()` kullanma. Resim avatarlar `<img>`.
 - v1.12.2 performans: kart ölçüsü `--u` (cqw/container-type yok; kartın genişliği her bağlamda `--card-w` ile verilmeli). table-kit `cssNum()` önbelleği. Süre halkası 125 ms'de bir. `Bot.choose` async: `mcGen` üreteci 8 ms dilimlerle; `chooseSync`/`monteCarlo` testler için tek parça. Buhar: `iterations: 7`, tazelenince yeniden. Kural: sürekli dönen animasyonu filtreli bir öğenin içine koyma; her karede css değişkeni yazma.
 - `A.fly` gecikmeli çağrıda (delay > 0) kartı sırası gelince oluşturur; beklerken `#fx` içinde görünmez `.fxw` yer tutucu durur (uçuş-sürüyor denetimleri için). Ses uçuş başlarken çalar.
+## v1.13
+- Sürüm: `tools/build-sw.mjs` `version.json` yazar ({v: git kayıt sayısı, date}); depoda tutulmaz, Actions üretir (checkout `fetch-depth: 0`). app.js `ver`: cihazdaki `version.json` (önbellekten), internetteki `version.json?net=…` (sw.js `net` parametresini önbelleksiz geçirir). `updateNow()`: `reg.update()` → controllerchange → reload.

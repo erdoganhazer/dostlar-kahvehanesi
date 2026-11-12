@@ -270,3 +270,6 @@ Kural (SERVIS-MANUELI): masadaki öğeler içerik değişince yükseklik değiş
   - Zor seviye botun Monte Carlo hesabı tek parça çalışıp ekranı 100–900 ms donduruyordu (ses çalar, kart sonra gelir) → 8 ms'lik dilimlerde, arada tarayıcıya nefes.
 - Sonuç (benzetim, King ilk 8 sn): ana iş parçacığı yükü 4,3 sn → 2,4 sn; en uzun donma 700–1000 ms → ~170 ms.
 - Kullanıcı: takılma oyun başlamadan, kartlar ilk dağılırken de oluyor (bot düşünmüyorken). → Dağıtımda 52 uçan kartın hepsi baştan ekrana konup bekletiliyordu (52 ayrı katman). Artık her kart sırası gelince oluşturulur (aynı anda en çok ~8), ses de uçuşun başladığı anda çalar.
+
+## v1.13 — Sürüm numarası
+- Kullanıcı: ana sayfada sürüm numarası olsun, cihazdakiyle internettekini kıyaslayayım. → Logonun altında "Sürüm N · tarih saat" (N = depo kayıt sayısı, her yayında artar). İnternet varsa yanında "güncel" ya da "Yeni sürüm M var · Güncelle" düğmesi (basınca yeni sürümü indirip sayfayı yeniler).

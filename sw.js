@@ -1,9 +1,10 @@
 // Dostlar Kahvehanesi servis işçisi: oyunu cihaza indirir, internetsiz de açılır.
 // Bu dosya tools/build-sw.mjs ile üretilir; elle düzenleme (tools/sw.template.js'i düzenle).
-const VERSION = '3bac9e59b865';
+const VERSION = '395d528755cc';
 const CACHE = `kahvehane-${VERSION}`;
 const FILES = [
  "./",
+ "./version.json",
  "./index.html",
  "./manifest.webmanifest",
  "./css/avrora.css",
@@ -176,6 +177,11 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
+  // sürüm denetimi (version.json?net=…): her zaman internetten, önbelleğe yazılmaz
+  if (new URL(req.url).searchParams.has('net')) {
+    e.respondWith(fetch(req, { cache: 'no-store' }));
+    return;
+  }
   e.respondWith(
     caches.match(req, { ignoreSearch: true }).then((hit) => hit || fetch(req).then((res) => {
       if (res.ok) {
